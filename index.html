@@ -6,7 +6,7 @@
 
     <meta
         name="description"
-        content="Точка выхода — личный навигатор по эмиграции. Страны, бюджет, документы, работа, новости и подготовка к переезду."
+        content="Точка выхода — личный навигатор по эмиграции."
     >
 
     <title>Точка выхода — личный навигатор по эмиграции</title>
@@ -16,16 +16,11 @@
 
 <body>
 
-<!-- =========================================================
-     HEADER
-========================================================= -->
-
 <header class="header">
     <div class="container header-inner">
 
         <a href="#top" class="logo">
             <span class="logo-mark">↗</span>
-
             <span>
                 <strong>ТОЧКА ВЫХОДА</strong>
                 <small>выход есть всегда</small>
@@ -37,7 +32,7 @@
             <a href="#calculator">Калькулятор</a>
             <a href="#test">Тест</a>
             <a href="#knowledge">База</a>
-            <a href="#news">Новости</a>
+            <a href="#currency">Конвертер</a>
         </nav>
 
         <a
@@ -55,9 +50,7 @@
 
 <main id="top">
 
-<!-- =========================================================
-     HERO
-========================================================= -->
+<!-- HERO -->
 
 <section class="hero">
 
@@ -78,16 +71,14 @@
             </h1>
 
             <p class="hero-text">
-                Разберись, стоит ли тебе рассматривать переезд,
-                какие страны подходят под твою ситуацию,
-                сколько это может стоить и что делать дальше.
+                Разберись, какие страны подходят именно под твою
+                ситуацию, сколько может стоить переезд и что делать дальше.
             </p>
 
             <div class="hero-actions">
 
                 <a href="#countries" class="btn btn-primary">
-                    Подобрать страну
-                    <span>→</span>
+                    Подобрать страну →
                 </a>
 
                 <a href="#test" class="btn btn-secondary">
@@ -153,9 +144,7 @@
 </section>
 
 
-<!-- =========================================================
-     QUICK TOOLS
-========================================================= -->
+<!-- QUICK TOOLS -->
 
 <section class="quick-tools">
 
@@ -173,8 +162,8 @@
                 <div class="tool-icon">🌎</div>
                 <h3>Подобрать страну</h3>
                 <p>
-                    Сравни направления по климату,
-                    стоимости, языку и другим параметрам.
+                    Сравни направления по региону,
+                    валюте, языкам и другим параметрам.
                 </p>
                 <span class="tool-link">Начать →</span>
             </a>
@@ -184,8 +173,8 @@
                 <div class="tool-icon">💰</div>
                 <h3>Рассчитать переезд</h3>
                 <p>
-                    Получи три сценария бюджета:
-                    минимум, реалистичный и с запасом.
+                    Рассчитай ориентировочный бюджет
+                    полностью в долларах.
                 </p>
                 <span class="tool-link">Рассчитать →</span>
             </a>
@@ -195,8 +184,8 @@
                 <div class="tool-icon">🤔</div>
                 <h3>Стоит ли уезжать?</h3>
                 <p>
-                    Посмотри на свою ситуацию
-                    со стороны и найди слабые места.
+                    Посмотри на свою ситуацию со стороны
+                    и найди слабые места.
                 </p>
                 <span class="tool-link">Пройти тест →</span>
             </a>
@@ -207,9 +196,7 @@
 </section>
 
 
-<!-- =========================================================
-     COUNTRIES
-========================================================= -->
+<!-- COUNTRIES -->
 
 <section class="section" id="countries">
 
@@ -227,12 +214,11 @@
             </div>
 
             <p>
-                Страна не бывает универсально «лучшей».
+                Страна не бывает универсально лучшей.
                 Она должна подходить именно под твою ситуацию.
             </p>
 
         </div>
-
 
         <div class="country-controls">
 
@@ -258,7 +244,6 @@
 
         </div>
 
-
         <div id="countryGrid" class="country-grid">
 
             <div class="loading">
@@ -271,9 +256,7 @@
 </section>
 
 
-<!-- =========================================================
-     CALCULATOR
-========================================================= -->
+<!-- CALCULATOR -->
 
 <section class="section calculator-section" id="calculator">
 
@@ -291,9 +274,8 @@
             </div>
 
             <p>
-                Мы не обещаем точную сумму.
-                Показываем ориентировочные сценарии,
-                чтобы ты понимал масштаб расходов.
+                Все суммы указаны в долларах США.
+                Расчёт ориентировочный.
             </p>
 
         </div>
@@ -330,6 +312,9 @@
 
                 <label>
                     🍜 Первые расходы
+                    <span class="info-wrap">
+                        <button type="button" class="info-button" data-info="Первые расходы — это деньги на первые дни после приезда: еда, связь, бытовые вещи, транспорт и другие мелкие покупки до того момента, когда ты полностью обустроишься.">!</button>
+                    </span>
                     <input type="number" id="food" value="300" min="0">
                 </label>
 
@@ -340,10 +325,16 @@
 
                 <label>
                     💰 Резерв
+                    <span class="info-wrap">
+                        <button type="button" class="info-button" data-info="Резерв — деньги, которые желательно не планировать на обычные расходы. Они нужны на случай задержки документов, поиска жилья, болезни, потери работы или другой непредвиденной ситуации.">!</button>
+                    </span>
                     <input type="number" id="reserve" value="1000" min="0">
                 </label>
 
-                <button id="calculateButton" class="btn btn-primary calculator-button">
+                <button
+                    id="calculateButton"
+                    class="btn btn-primary calculator-button"
+                >
                     Рассчитать
                 </button>
 
@@ -357,7 +348,7 @@
                 </div>
 
                 <div class="result-currency">
-                    USD
+                    USD $
                 </div>
 
                 <div class="scenario">
@@ -381,6 +372,10 @@
                     города, сезона, документов и личной ситуации.
                 </p>
 
+                <a href="#currency" class="calculator-converter-link">
+                    💱 Нужна другая валюта? Открыть конвертер →
+                </a>
+
             </div>
 
         </div>
@@ -389,9 +384,7 @@
 </section>
 
 
-<!-- =========================================================
-     TEST
-========================================================= -->
+<!-- TEST -->
 
 <section class="section test-section" id="test">
 
@@ -410,8 +403,7 @@
 
             <p>
                 Это не решение за тебя.
-                Это способ посмотреть на ситуацию
-                со стороны.
+                Это способ посмотреть на ситуацию со стороны.
             </p>
 
         </div>
@@ -431,6 +423,7 @@
             <div id="questionContainer">
 
                 <div class="question">
+
                     <span class="question-number">01</span>
 
                     <h3 id="questionText">
@@ -438,6 +431,7 @@
                     </h3>
 
                     <div id="answers" class="answers"></div>
+
                 </div>
 
             </div>
@@ -465,9 +459,7 @@
 </section>
 
 
-<!-- =========================================================
-     KNOWLEDGE BASE
-========================================================= -->
+<!-- KNOWLEDGE BASE -->
 
 <section class="section" id="knowledge">
 
@@ -484,50 +476,74 @@
                 </h2>
             </div>
 
+            <p>
+                Нажми на любой раздел, чтобы открыть подробную информацию.
+            </p>
+
         </div>
 
 
         <div class="knowledge-grid">
 
-            <article class="knowledge-card">
+            <button class="knowledge-card" data-knowledge="documents">
                 <span>📄</span>
                 <h3>Документы</h3>
-                <p>Паспорта, визы, ВНЖ, справки и чек-листы.</p>
-            </article>
+                <p>
+                    Паспорт, виза, ВНЖ, справки, апостиль
+                    и другие документы.
+                </p>
+                <b>Открыть →</b>
+            </button>
 
-            <article class="knowledge-card">
+            <button class="knowledge-card" data-knowledge="work">
                 <span>💼</span>
                 <h3>Работа</h3>
-                <p>Работа на месте, удалёнка, учёба и другие варианты.</p>
-            </article>
+                <p>
+                    Работа на месте, удалёнка,
+                    разрешения и поиск работодателя.
+                </p>
+                <b>Открыть →</b>
+            </button>
 
-            <article class="knowledge-card">
+            <button class="knowledge-card" data-knowledge="study">
                 <span>🎓</span>
                 <h3>Учёба</h3>
-                <p>Университеты, языковые курсы и образовательные пути.</p>
-            </article>
+                <p>
+                    Университеты, подтверждение образования,
+                    документы и поступление.
+                </p>
+                <b>Открыть →</b>
+            </button>
 
-            <article class="knowledge-card">
+            <button class="knowledge-card" data-knowledge="housing">
                 <span>🏠</span>
                 <h3>Жильё</h3>
-                <p>Поиск жилья, районы, аренда и первые дни после приезда.</p>
-            </article>
+                <p>
+                    Аренда, депозит, районы,
+                    договор и первые дни.
+                </p>
+                <b>Открыть →</b>
+            </button>
 
-            <article class="knowledge-card">
+            <button class="knowledge-card" data-knowledge="packing">
                 <span>🎒</span>
                 <h3>Что взять</h3>
-                <p>Чек-листы вещей и подготовка к дороге.</p>
-            </article>
-
-            <article class="knowledge-card emergency">
-                <span>🚨</span>
-                <h3>Если всё пошло не так</h3>
                 <p>
-                    Потерял паспорт? Нет денег?
-                    Проблемы на границе? Здесь ищем,
-                    что делать в непредвиденной ситуации.
+                    Документы, техника, лекарства,
+                    одежда и полезные вещи.
                 </p>
-            </article>
+                <b>Открыть →</b>
+            </button>
+
+            <button class="knowledge-card emergency" data-knowledge="emergency">
+                <span>🚨</span>
+                <h3>Непредвиденные ситуации</h3>
+                <p>
+                    Что делать, если потерял паспорт,
+                    деньги или столкнулся с проблемой.
+                </p>
+                <b>Открыть →</b>
+            </button>
 
         </div>
 
@@ -535,9 +551,7 @@
 </section>
 
 
-<!-- =========================================================
-     NEWS
-========================================================= -->
+<!-- NEWS -->
 
 <section class="section news-section" id="news">
 
@@ -549,50 +563,34 @@
                 <span class="section-label">📰 АКТУАЛЬНО</span>
 
                 <h2>
-                    Что изменилось
-                    <span>прямо сейчас</span>
+                    Новости
+                    <span>будут здесь</span>
                 </h2>
             </div>
 
             <p>
-                Лента собирается автоматически.
-                Всегда проверяй критически важную информацию
-                по первоисточнику.
+                Раздел подготовлен. Автоматическую ленту подключим
+                отдельно, чтобы не использовать непроверенные данные.
             </p>
 
         </div>
 
-
-        <div class="news-toolbar">
-
-            <div id="newsStatus">
-                Загружаем последние материалы...
-            </div>
-
-            <button id="refreshNews" class="refresh-button">
-                ↻ Обновить
-            </button>
-
-        </div>
-
-
-        <div id="newsGrid" class="news-grid">
-
-            <div class="loading">
-                Загружаем новости...
-            </div>
-
+        <div class="news-placeholder">
+            <div>📰</div>
+            <h3>Новости пока не подключены</h3>
+            <p>
+                Следующим этапом подключим автоматическое получение
+                материалов из внешних источников.
+            </p>
         </div>
 
     </div>
 </section>
 
 
-<!-- =========================================================
-     CURRENCY
-========================================================= -->
+<!-- CURRENCY -->
 
-<section class="section currency-section">
+<section class="section currency-section" id="currency">
 
     <div class="container">
 
@@ -601,11 +599,11 @@
             <div>
                 <span class="section-label">💱 КОНВЕРТЕР</span>
 
-                <h2>Быстро сравнить валюты</h2>
+                <h2>Сравнить валюты</h2>
 
                 <p>
-                    Курс предоставляется внешним источником
-                    и может отличаться от курса твоего банка.
+                    Выбери сумму, валюту и страну.
+                    Курс загружается автоматически.
                 </p>
             </div>
 
@@ -619,29 +617,11 @@
                     min="0"
                 >
 
-                <select id="currencyFrom">
-                    <option value="RUB">RUB ₽</option>
-                    <option value="USD">USD $</option>
-                    <option value="EUR">EUR €</option>
-                    <option value="ARS">ARS</option>
-                    <option value="GEL">GEL</option>
-                    <option value="RSD">RSD</option>
-                    <option value="THB">THB</option>
-                    <option value="VND">VND</option>
-                </select>
+                <select id="currencyFrom"></select>
 
                 <span class="currency-arrow">→</span>
 
-                <select id="currencyTo">
-                    <option value="USD">USD $</option>
-                    <option value="EUR">EUR €</option>
-                    <option value="RUB">RUB ₽</option>
-                    <option value="ARS">ARS</option>
-                    <option value="GEL">GEL</option>
-                    <option value="RSD">RSD</option>
-                    <option value="THB">THB</option>
-                    <option value="VND">VND</option>
-                </select>
+                <select id="currencyTo"></select>
 
                 <button id="convertButton" class="btn btn-primary">
                     Конвертировать
@@ -654,7 +634,9 @@
                 —
             </div>
 
-            <div id="currencyDate" class="currency-date"></div>
+            <div id="currencyDate" class="currency-date">
+                Курсы загружаются...
+            </div>
 
         </div>
 
@@ -662,9 +644,7 @@
 </section>
 
 
-<!-- =========================================================
-     SUPPORT
-========================================================= -->
+<!-- SUPPORT -->
 
 <section class="support-section">
 
@@ -682,9 +662,8 @@
                 </h2>
 
                 <p>
-                    Мы хотим, чтобы базовая информация,
-                    инструменты и навигатор оставались
-                    доступными без регистрации и платной подписки.
+                    Базовые материалы, инструменты и навигатор
+                    должны оставаться доступными бесплатно.
                 </p>
 
                 <p>
@@ -722,9 +701,7 @@
 </section>
 
 
-<!-- =========================================================
-     DISCLAIMER
-========================================================= -->
+<!-- DISCLAIMER -->
 
 <section class="disclaimer-section">
 
@@ -735,12 +712,11 @@
             <strong>⚠️ Важно</strong>
 
             <p>
-                «Точка выхода» предоставляет справочную и
-                ориентировочную информацию. Правила въезда,
-                визовые требования, миграционные законы,
+                «Точка выхода» предоставляет справочную и ориентировочную
+                информацию. Миграционные правила, визовые требования,
                 налоги и другие условия могут меняться.
-                Перед принятием важных решений всегда
-                проверяй информацию по официальному источнику.
+                Перед принятием важных решений всегда проверяй
+                информацию по официальному источнику.
             </p>
 
         </div>
@@ -752,27 +728,29 @@
 </main>
 
 
-<!-- =========================================================
-     FOOTER
-========================================================= -->
+<!-- FOOTER -->
 
 <footer class="footer">
 
     <div class="container footer-inner">
 
         <div>
+
             <a href="#top" class="logo">
+
                 <span class="logo-mark">↗</span>
 
                 <span>
                     <strong>ТОЧКА ВЫХОДА</strong>
                     <small>выход есть всегда</small>
                 </span>
+
             </a>
 
             <p>
                 Личный навигатор по эмиграции.
             </p>
+
         </div>
 
 
@@ -782,7 +760,7 @@
             <a href="#calculator">Калькулятор</a>
             <a href="#test">Тест</a>
             <a href="#knowledge">База</a>
-            <a href="#news">Новости</a>
+            <a href="#currency">Конвертер</a>
 
             <a
                 href="https://t.me/tochka_exit"
@@ -799,17 +777,30 @@
 
     <div class="container footer-bottom">
 
-        <span>
-            © 2026 Точка выхода
-        </span>
+        <span>© 2026 Точка выхода</span>
 
-        <span>
-            Информация может изменяться
-        </span>
+        <span>Информация может изменяться</span>
 
     </div>
 
 </footer>
+
+
+<!-- MODAL -->
+
+<div id="modal" class="modal hidden">
+
+    <div class="modal-overlay"></div>
+
+    <div class="modal-window">
+
+        <button id="modalClose" class="modal-close">×</button>
+
+        <div id="modalContent"></div>
+
+    </div>
+
+</div>
 
 
 <script src="countries.js"></script>
