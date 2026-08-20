@@ -1,224 +1,338 @@
-const fallbackCountries = [
+const countries = [
+
     {
+        id: "argentina",
         name: "Аргентина",
-        code: "AR",
+        region: "Americas",
         flag: "🇦🇷",
-        region: "Americas",
-        meta: "Южная Америка"
+        capital: "Буэнос-Айрес",
+        currency: "ARS",
+        language: "Испанский",
+        climate: "Разный: от субтропиков до холодного юга",
+        tags: ["Испанский", "Америка", "Студенты"],
+        description:
+            "Большая страна Южной Америки с относительно доступной стоимостью жизни и испаноязычной средой."
     },
+
     {
+        id: "brazil",
         name: "Бразилия",
-        code: "BR",
+        region: "Americas",
         flag: "🇧🇷",
-        region: "Americas",
-        meta: "Южная Америка"
+        capital: "Бразилиа",
+        currency: "BRL",
+        language: "Португальский",
+        climate: "Преимущественно тёплый",
+        tags: ["Португальский", "Америка", "Большая страна"],
+        description:
+            "Крупнейшая страна Южной Америки с большим количеством городов и различным уровнем стоимости жизни."
     },
+
     {
-        name: "Канада",
-        code: "CA",
-        flag: "🇨🇦",
-        region: "Americas",
-        meta: "Северная Америка"
-    },
-    {
+        id: "usa",
         name: "США",
-        code: "US",
+        region: "Americas",
         flag: "🇺🇸",
-        region: "Americas",
-        meta: "Северная Америка"
+        capital: "Вашингтон",
+        currency: "USD",
+        language: "Английский",
+        climate: "Сильно зависит от штата",
+        tags: ["Английский", "Работа", "Учёба"],
+        description:
+            "Большой рынок образования и работы, но стоимость жизни и иммиграционные требования сильно зависят от конкретного штата и статуса."
     },
+
     {
+        id: "canada",
+        name: "Канада",
+        region: "Americas",
+        flag: "🇨🇦",
+        capital: "Оттава",
+        currency: "CAD",
+        language: "Английский, французский",
+        climate: "От умеренного до очень холодного",
+        tags: ["Английский", "Учёба", "Иммиграция"],
+        description:
+            "Страна Северной Америки с двумя официальными языками и большим количеством иммиграционных программ."
+    },
+
+    {
+        id: "mexico",
         name: "Мексика",
-        code: "MX",
+        region: "Americas",
         flag: "🇲🇽",
-        region: "Americas",
-        meta: "Северная Америка"
-    },
-    {
-        name: "Чили",
-        code: "CL",
-        flag: "🇨🇱",
-        region: "Americas",
-        meta: "Южная Америка"
-    },
-    {
-        name: "Уругвай",
-        code: "UY",
-        flag: "🇺🇾",
-        region: "Americas",
-        meta: "Южная Америка"
+        capital: "Мехико",
+        currency: "MXN",
+        language: "Испанский",
+        climate: "От тропического до умеренного",
+        tags: ["Испанский", "Тёплый климат", "Америка"],
+        description:
+            "Испаноязычная страна с большим выбором городов и регионов."
     },
 
     {
+        id: "germany",
         name: "Германия",
-        code: "DE",
+        region: "Europe",
         flag: "🇩🇪",
-        region: "Europe",
-        meta: "Европа"
+        capital: "Берлин",
+        currency: "EUR",
+        language: "Немецкий",
+        climate: "Умеренный",
+        tags: ["ЕС", "Работа", "Учёба"],
+        description:
+            "Крупнейшая экономика ЕС с развитой системой образования и рынка труда."
     },
+
     {
-        name: "Испания",
-        code: "ES",
-        flag: "🇪🇸",
-        region: "Europe",
-        meta: "Европа"
-    },
-    {
-        name: "Португалия",
-        code: "PT",
-        flag: "🇵🇹",
-        region: "Europe",
-        meta: "Европа"
-    },
-    {
+        id: "france",
         name: "Франция",
-        code: "FR",
+        region: "Europe",
         flag: "🇫🇷",
-        region: "Europe",
-        meta: "Европа"
+        capital: "Париж",
+        currency: "EUR",
+        language: "Французский",
+        climate: "От океанического до средиземноморского",
+        tags: ["ЕС", "Французский", "Учёба"],
+        description:
+            "Европейская страна с большим количеством образовательных и профессиональных возможностей."
     },
+
     {
+        id: "spain",
+        name: "Испания",
+        region: "Europe",
+        flag: "🇪🇸",
+        capital: "Мадрид",
+        currency: "EUR",
+        language: "Испанский",
+        climate: "Средиземноморский и континентальный",
+        tags: ["Испанский", "Тёплый климат", "ЕС"],
+        description:
+            "Популярное направление для жизни благодаря климату, инфраструктуре и испаноязычной среде."
+    },
+
+    {
+        id: "portugal",
+        name: "Португалия",
+        region: "Europe",
+        flag: "🇵🇹",
+        capital: "Лиссабон",
+        currency: "EUR",
+        language: "Португальский",
+        climate: "Мягкий",
+        tags: ["ЕС", "Океан", "Португальский"],
+        description:
+            "Небольшая страна на западе Европы с мягким климатом и выходом к Атлантическому океану."
+    },
+
+    {
+        id: "italy",
         name: "Италия",
-        code: "IT",
+        region: "Europe",
         flag: "🇮🇹",
-        region: "Europe",
-        meta: "Европа"
+        capital: "Рим",
+        currency: "EUR",
+        language: "Итальянский",
+        climate: "От альпийского до средиземноморского",
+        tags: ["ЕС", "Итальянский", "Культура"],
+        description:
+            "Страна с большим разнообразием регионов, климатов и городов."
     },
+
     {
-        name: "Греция",
-        code: "GR",
-        flag: "🇬🇷",
-        region: "Europe",
-        meta: "Европа"
-    },
-    {
+        id: "serbia",
         name: "Сербия",
-        code: "RS",
+        region: "Europe",
         flag: "🇷🇸",
-        region: "Europe",
-        meta: "Европа"
-    },
-    {
-        name: "Черногория",
-        code: "ME",
-        flag: "🇲🇪",
-        region: "Europe",
-        meta: "Европа"
-    },
-    {
-        name: "Польша",
-        code: "PL",
-        flag: "🇵🇱",
-        region: "Europe",
-        meta: "Европа"
-    },
-    {
-        name: "Чехия",
-        code: "CZ",
-        flag: "🇨🇿",
-        region: "Europe",
-        meta: "Европа"
+        capital: "Белград",
+        currency: "RSD",
+        language: "Сербский",
+        climate: "Умеренный",
+        tags: ["Балканы", "Европа", "Белград"],
+        description:
+            "Балканская страна с относительно компактными расстояниями и развитой городской инфраструктурой."
     },
 
     {
+        id: "georgia",
         name: "Грузия",
-        code: "GE",
+        region: "Asia",
         flag: "🇬🇪",
-        region: "Asia",
-        meta: "Кавказ"
+        capital: "Тбилиси",
+        currency: "GEL",
+        language: "Грузинский",
+        climate: "От субтропического до горного",
+        tags: ["Кавказ", "Горы", "Тбилиси"],
+        description:
+            "Страна Кавказа с разнообразным климатом и сочетанием горных и городских регионов."
     },
+
     {
+        id: "turkey",
         name: "Турция",
-        code: "TR",
+        region: "Asia",
         flag: "🇹🇷",
-        region: "Asia",
-        meta: "Евразия"
+        capital: "Анкара",
+        currency: "TRY",
+        language: "Турецкий",
+        climate: "Разный",
+        tags: ["Турецкий", "Море", "Крупные города"],
+        description:
+            "Трансконтинентальная страна с большим выбором городов и климатических зон."
     },
+
     {
-        name: "Таиланд",
-        code: "TH",
-        flag: "🇹🇭",
-        region: "Asia",
-        meta: "Юго-Восточная Азия"
-    },
-    {
-        name: "Вьетнам",
-        code: "VN",
-        flag: "🇻🇳",
-        region: "Asia",
-        meta: "Юго-Восточная Азия"
-    },
-    {
-        name: "Япония",
-        code: "JP",
-        flag: "🇯🇵",
-        region: "Asia",
-        meta: "Восточная Азия"
-    },
-    {
-        name: "Южная Корея",
-        code: "KR",
-        flag: "🇰🇷",
-        region: "Asia",
-        meta: "Восточная Азия"
-    },
-    {
-        name: "Индонезия",
-        code: "ID",
-        flag: "🇮🇩",
-        region: "Asia",
-        meta: "Юго-Восточная Азия"
-    },
-    {
+        id: "kazakhstan",
         name: "Казахстан",
-        code: "KZ",
+        region: "Asia",
         flag: "🇰🇿",
-        region: "Asia",
-        meta: "Центральная Азия"
+        capital: "Астана",
+        currency: "KZT",
+        language: "Казахский, русский",
+        climate: "Континентальный",
+        tags: ["СНГ", "Русский", "Азия"],
+        description:
+            "Крупнейшая страна Центральной Азии с развитой городской инфраструктурой."
     },
 
     {
+        id: "thailand",
+        name: "Таиланд",
+        region: "Asia",
+        flag: "🇹🇭",
+        capital: "Бангкок",
+        currency: "THB",
+        language: "Тайский",
+        climate: "Тропический",
+        tags: ["Тропики", "Море", "Азия"],
+        description:
+            "Тропическая страна Юго-Восточной Азии с большим количеством туристических и городских центров."
+    },
+
+    {
+        id: "vietnam",
+        name: "Вьетнам",
+        region: "Asia",
+        flag: "🇻🇳",
+        capital: "Ханой",
+        currency: "VND",
+        language: "Вьетнамский",
+        climate: "Тропический и муссонный",
+        tags: ["Азия", "Море", "Тропики"],
+        description:
+            "Быстро развивающаяся страна Юго-Восточной Азии с разнообразными регионами."
+    },
+
+    {
+        id: "japan",
+        name: "Япония",
+        region: "Asia",
+        flag: "🇯🇵",
+        capital: "Токио",
+        currency: "JPY",
+        language: "Японский",
+        climate: "От субтропического до холодного",
+        tags: ["Азия", "Японский", "Технологии"],
+        description:
+            "Высокоразвитая страна Восточной Азии с уникальной культурой и развитой инфраструктурой."
+    },
+
+    {
+        id: "south-korea",
+        name: "Южная Корея",
+        region: "Asia",
+        flag: "🇰🇷",
+        capital: "Сеул",
+        currency: "KRW",
+        language: "Корейский",
+        climate: "Умеренный муссонный",
+        tags: ["Азия", "Корейский", "Технологии"],
+        description:
+            "Высокоразвитая страна Восточной Азии с крупными городами и сильной технологической отраслью."
+    },
+
+    {
+        id: "uae",
         name: "ОАЭ",
-        code: "AE",
-        flag: "🇦🇪",
         region: "Asia",
-        meta: "Ближний Восток"
+        flag: "🇦🇪",
+        capital: "Абу-Даби",
+        currency: "AED",
+        language: "Арабский",
+        climate: "Пустынный",
+        tags: ["Ближний Восток", "Работа", "Тёплый климат"],
+        description:
+            "Федерация государств Персидского залива с крупными международными центрами бизнеса."
     },
 
     {
-        name: "Австралия",
-        code: "AU",
-        flag: "🇦🇺",
-        region: "Oceania",
-        meta: "Океания"
-    },
-    {
-        name: "Новая Зеландия",
-        code: "NZ",
-        flag: "🇳🇿",
-        region: "Oceania",
-        meta: "Океания"
-    },
-
-    {
+        id: "egypt",
         name: "Египет",
-        code: "EG",
+        region: "Africa",
         flag: "🇪🇬",
-        region: "Africa",
-        meta: "Северная Африка"
+        capital: "Каир",
+        currency: "EGP",
+        language: "Арабский",
+        climate: "Пустынный",
+        tags: ["Африка", "Море", "Тёплый климат"],
+        description:
+            "Североафриканская страна с выходом к Средиземному и Красному морям."
     },
+
     {
+        id: "morocco",
         name: "Марокко",
-        code: "MA",
+        region: "Africa",
         flag: "🇲🇦",
-        region: "Africa",
-        meta: "Северная Африка"
+        capital: "Рабат",
+        currency: "MAD",
+        language: "Арабский, берберские языки",
+        climate: "Средиземноморский и пустынный",
+        tags: ["Африка", "Море", "Арабский"],
+        description:
+            "Североафриканская страна с разнообразной природой и культурой."
     },
+
     {
+        id: "south-africa",
         name: "ЮАР",
-        code: "ZA",
-        flag: "🇿🇦",
         region: "Africa",
-        meta: "Южная Африка"
+        flag: "🇿🇦",
+        capital: "Претория",
+        currency: "ZAR",
+        language: "Английский и другие",
+        climate: "Разный",
+        tags: ["Африка", "Английский", "Природа"],
+        description:
+            "Крупная страна юга Африки с несколькими экономическими центрами."
+    },
+
+    {
+        id: "australia",
+        name: "Австралия",
+        region: "Oceania",
+        flag: "🇦🇺",
+        capital: "Канберра",
+        currency: "AUD",
+        language: "Английский",
+        climate: "От тропического до умеренного",
+        tags: ["Океания", "Английский", "Учёба"],
+        description:
+            "Развитая англоязычная страна с большим количеством образовательных и профессиональных возможностей."
+    },
+
+    {
+        id: "new-zealand",
+        name: "Новая Зеландия",
+        region: "Oceania",
+        flag: "🇳🇿",
+        capital: "Веллингтон",
+        currency: "NZD",
+        language: "Английский",
+        climate: "Умеренный",
+        tags: ["Океания", "Английский", "Природа"],
+        description:
+            "Островная страна с умеренным климатом и высоким уровнем жизни."
     }
 ];

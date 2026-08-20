@@ -1,135 +1,250 @@
-/* =====================================================
-   MODAL
-===================================================== */
+/* =========================================================
+   COUNTRY SYSTEM
+========================================================= */
 
-const modal = document.getElementById("modal");
-const modalContent = document.getElementById("modalContent");
-const modalClose = document.getElementById("modalClose");
+const countryGrid = document.getElementById("countryGrid");
+const countrySearch = document.getElementById("countrySearch");
+const regionFilter = document.getElementById("regionFilter");
 
+function renderCountries() {
 
-window.openModal = function(content) {
+    const search = countrySearch.value
+        .trim()
+        .toLowerCase();
 
-    modalContent.innerHTML = content;
+    const region = regionFilter.value;
 
-    modal.classList.remove("hidden");
+    const filtered = countries.filter(country => {
 
-    document.body.style.overflow = "hidden";
-};
+        const matchesSearch =
+            country.name.toLowerCase().includes(search) ||
+            country.capital.toLowerCase().includes(search) ||
+            country.language.toLowerCase().includes(search) ||
+            country.currency.toLowerCase().includes(search);
 
+        const matchesRegion =
+            region === "all" ||
+            country.region === region;
 
-function closeModal() {
-
-    modal.classList.add("hidden");
-
-    document.body.style.overflow = "";
-}
-
-
-modalClose.addEventListener("click", closeModal);
-
-document
-    .querySelector(".modal-overlay")
-    .addEventListener("click", closeModal);
-
-document.addEventListener("keydown", event => {
-
-    if (event.key === "Escape") {
-        closeModal();
-    }
-
-});
-
-
-/* =====================================================
-   INFO BUTTONS
-===================================================== */
-
-document
-    .querySelectorAll(".info-button")
-    .forEach(button => {
-
-        button.addEventListener("click", event => {
-
-            event.stopPropagation();
-
-            const text = button.dataset.info;
-
-            openModal(`
-                <h2 class="modal-title">
-                    ℹ️ Что это значит?
-                </h2>
-
-                <div class="modal-text">
-                    <p>${text}</p>
-                </div>
-            `);
-
-        });
-
+        return matchesSearch && matchesRegion;
     });
 
+    if (!filtered.length) {
 
-/* =====================================================
-   CALCULATOR
-===================================================== */
+        countryGrid.innerHTML = `
+            <div class="loading">
+                Ничего не найдено.
+            </div>
+        `;
 
-const calculatorFields = [
-    "ticket",
-    "housing",
-    "deposit",
-    "documents",
-    "insurance",
-    "food",
-    "transport",
-    "reserve"
-];
+        return;
+    }
 
+    countryGrid.innerHTML = filtered.map(country => `
 
-function getCalculatorSum() {
+        <article class="country-card">
 
-    return calculatorFields.reduce((sum, id) => {
+            <div class="country-flag">
+                ${country.flag}
+            </div>
 
-        const element = document.getElementById(id);
+            <h3>
+                ${country.name}
+            </h3>
 
-        return sum + (Number(element.value) || 0);
+            <div class="country-meta">
+                ${country.capital} · ${country.currency}
+            </div>
 
-    }, 0);
+            <div class="country-tags">
+
+                ${country.tags.map(tag => `
+                    <span class="country-tag">
+                        ${tag}
+                    </span>
+                `).join("")}
+
+            </div>
+
+            <button
+                class="country-open"
+                data-country="${country.id}"
+            >
+                Подробнее о стране →
+            </button>
+
+        </article>
+
+    `).join("");
+
+    document
+        .querySelectorAll(".country-open")
+        .forEach(button => {
+
+            button.addEventListener("click", () => {
+
+                const country = countries.find(
+                    item => item.id === button.dataset.country
+                );
+
+                openCountryModal(country);
+            });
+
+        });
 }
 
+
+countrySearch.addEventListener(
+    "input",
+    renderCountries
+);
+
+regionFilter.addEventListener(
+    "change",
+    renderCountries
+);
+
+renderCountries();
+
+
+/* =========================================================
+   COUNTRY MODAL
+========================================================= */
+
+function openCountryModal(country) {
+
+    const modal = document.getElementById("knowledgeModal");
+
+    const title =
+        document.getElementById("knowledgeModalTitle");
+
+    const content =
+        document.getElementById("knowledgeModalContent");
+
+    title.innerHTML = "";
+
+    content.innerHTML = `
+
+        <div class="country-detail">
+
+            <div class="country-detail-flag">
+                ${country.flag}
+            </div>
+
+            <h3>
+                ${country.name}
+            </h3>
+
+            <p>
+                ${country.description}
+            </p>
+
+            <div class="country-detail-grid">
+
+                <div class="detail-item">
+                    <strong>СТОЛИЦА</strong>
+                    <span>${country.capital}</span>
+                </div>
+
+                <div class="detail-item">
+                    <strong>ВАЛЮТА</strong>
+                    <span>${country.currency}</span>
+                </div>
+
+                <div class="detail-item">
+                    <strong>ЯЗЫК</strong>
+                    <span>${country.language}</span>
+                </div>
+
+                <div class="detail-item">
+                    <strong>КЛИМАТ</strong>
+                    <span>${country.climate}</span>
+                </div>
+
+            </div>
+
+            <div class="country-more-note">
+
+                <h4>Что здесь появится дальше</h4>
+
+                <p>
+                    Полная страница страны:
+                    документы, визы, стоимость жизни,
+                    жильё, работа, учёба, безопасность,
+                    города, достопримечательности,
+                    полезные сайты и реальные особенности
+                    переезда.
+                </p>
+
+            </div>
+
+        </div>
+    `;
+
+    modal.classList.remove("hidden");
+}
+
+
+/* =========================================================
+   CALCULATOR
+========================================================= */
+
+const calculateButton =
+    document.getElementById("calculateButton");
+
+calculateButton.addEventListener("click", calculateBudget);
+
+function value(id) {
+
+    const element =
+        document.getElementById(id);
+
+    return Math.max(
+        0,
+        Number(element.value) || 0
+    );
+}
 
 function calculateBudget() {
 
-    const base = getCalculatorSum();
+    const total =
+        value("ticket") +
+        value("housing") +
+        value("deposit") +
+        value("documents") +
+        value("insurance") +
+        value("food") +
+        value("transport") +
+        value("reserve");
 
-    const minimum = Math.round(base * 0.75);
+    const minimum =
+        Math.round(total * 0.75);
 
-    const realistic = Math.round(base);
+    const realistic =
+        Math.round(total);
 
-    const comfortable = Math.round(base * 1.35);
+    const comfortable =
+        Math.round(total * 1.35);
 
+    document.getElementById("minimumResult")
+        .textContent =
+        "$" + minimum.toLocaleString("en-US");
 
-    document.getElementById("minimumResult").textContent =
-        `$${minimum.toLocaleString("en-US")}`;
+    document.getElementById("realisticResult")
+        .textContent =
+        "$" + realistic.toLocaleString("en-US");
 
-    document.getElementById("realisticResult").textContent =
-        `$${realistic.toLocaleString("en-US")}`;
-
-    document.getElementById("comfortableResult").textContent =
-        `$${comfortable.toLocaleString("en-US")}`;
+    document.getElementById("comfortableResult")
+        .textContent =
+        "$" + comfortable.toLocaleString("en-US");
 }
-
-
-document
-    .getElementById("calculateButton")
-    .addEventListener("click", calculateBudget);
-
 
 calculateBudget();
 
 
-/* =====================================================
+/* =========================================================
    TEST
-===================================================== */
+========================================================= */
 
 const questions = [
 
@@ -138,10 +253,10 @@ const questions = [
             "Что сильнее всего заставляет тебя думать о переезде?",
 
         answers: [
-            "Хочу новую жизнь и возможности",
-            "Не устраивает текущая ситуация",
-            "Учёба или работа за границей",
-            "Хочу просто попробовать пожить в другой стране"
+            "Хочу изменить образ жизни",
+            "Не чувствую себя комфортно там, где живу",
+            "Хочу учиться или работать за границей",
+            "Просто рассматриваю варианты"
         ]
     },
 
@@ -150,567 +265,406 @@ const questions = [
             "Есть ли у тебя финансовая подушка?",
 
         answers: [
-            "Да, минимум на несколько месяцев",
-            "Есть немного денег",
-            "Пока почти нет",
-            "Вообще нет"
+            "Да, на несколько месяцев",
+            "Есть немного",
+            "Почти нет",
+            "Пока вообще нет"
         ]
     },
 
     {
         question:
-            "Есть ли у тебя план страны?",
+            "Готов ли ты изучать язык страны?",
 
         answers: [
-            "Да, я уже выбрал несколько",
-            "Есть несколько вариантов",
-            "Пока понятия не имею",
-            "Мне всё равно, главное уехать"
+            "Да, без проблем",
+            "Если понадобится",
+            "Не очень хочу",
+            "Только английский"
         ]
     },
 
     {
         question:
-            "Что с документами?",
+            "Есть ли у тебя профессия или источник дохода?",
 
         answers: [
-            "Всё готово",
-            "Большая часть есть",
-            "Нужно ещё многое собрать",
-            "Я вообще не знаю, что нужно"
+            "Да, стабильный",
+            "Есть навыки",
+            "Пока ищу себя",
+            "Нет"
         ]
     },
 
     {
         question:
-            "Готов ли ты адаптироваться к другой культуре?",
+            "Насколько ты готов к бюрократии?",
 
         answers: [
-            "Да, спокойно",
+            "Готов разбираться",
+            "Если будет понятная инструкция",
+            "Не люблю документы",
+            "Это меня пугает"
+        ]
+    },
+
+    {
+        question:
+            "Что для тебя важнее всего в новой стране?",
+
+        answers: [
+            "Безопасность",
+            "Деньги и работа",
+            "Климат и образ жизни",
+            "Учёба и развитие"
+        ]
+    },
+
+    {
+        question:
+            "Насколько ты уверен в решении?",
+
+        answers: [
+            "Хочу уехать как можно скорее",
             "Скорее да",
-            "Не уверен",
-            "Хочу, чтобы всё было как дома"
-        ]
-    },
-
-    {
-        question:
-            "Что ты будешь делать после приезда?",
-
-        answers: [
-            "У меня уже есть работа/учёба",
-            "Буду искать работу",
-            "Буду разбираться на месте",
-            "Пока не знаю"
-        ]
-    },
-
-    {
-        question:
-            "Если первый план не сработает, что будешь делать?",
-
-        answers: [
-            "У меня есть запасной план",
-            "Придумаю другой вариант",
-            "Наверное, вернусь домой",
-            "Даже не думал об этом"
+            "Пока сомневаюсь",
+            "Я вообще не уверен"
         ]
     }
 
 ];
 
-
 let currentQuestion = 0;
 let testScore = 0;
 
+function renderQuestion() {
 
-const questionText =
-    document.getElementById("questionText");
+    const question =
+        questions[currentQuestion];
 
-const answersContainer =
-    document.getElementById("answers");
+    document.getElementById("questionText")
+        .textContent = question.question;
 
-const testProgress =
-    document.getElementById("testProgress");
-
-const progressFill =
-    document.getElementById("progressFill");
-
-const questionContainer =
-    document.getElementById("questionContainer");
-
-const testResult =
-    document.getElementById("testResult");
-
-
-function showQuestion() {
-
-    const question = questions[currentQuestion];
-
-    questionText.textContent =
-        question.question;
-
-
-    testProgress.textContent =
+    document.getElementById("testProgress")
+        .textContent =
         `Вопрос ${currentQuestion + 1} из ${questions.length}`;
 
-
-    progressFill.style.width =
+    document.getElementById("progressFill")
+        .style.width =
         `${((currentQuestion + 1) / questions.length) * 100}%`;
 
+    const answers =
+        document.getElementById("answers");
 
-    answersContainer.innerHTML =
-        question.answers
-            .map((answer, index) => {
+    answers.innerHTML =
+        question.answers.map(
+            (answer, index) => `
 
-                return `
-                    <button
-                        class="answer-button"
-                        data-score="${3 - index}"
-                    >
-                        ${answer}
-                    </button>
-                `;
+                <button
+                    class="answer-button"
+                    data-answer="${index}"
+                >
+                    ${answer}
+                </button>
 
-            })
-            .join("");
-
+            `
+        ).join("");
 
     document
         .querySelectorAll(".answer-button")
         .forEach(button => {
 
-            button.addEventListener("click", () => {
+            button.addEventListener(
+                "click",
+                () => {
 
-                testScore +=
-                    Number(button.dataset.score);
+                    testScore +=
+                        Number(button.dataset.answer);
 
-                currentQuestion++;
-
-                if (
-                    currentQuestion >=
-                    questions.length
-                ) {
-
-                    showTestResult();
-
-                } else {
-
-                    showQuestion();
-
+                    nextQuestion();
                 }
-
-            });
+            );
 
         });
-
 }
 
+function nextQuestion() {
+
+    currentQuestion++;
+
+    if (currentQuestion >= questions.length) {
+
+        showTestResult();
+
+        return;
+    }
+
+    renderQuestion();
+}
 
 function showTestResult() {
 
-    questionContainer.style.display = "none";
+    document
+        .getElementById("questionContainer")
+        .classList.add("hidden");
 
-    testProgress.style.display = "none";
+    document
+        .getElementById("testResult")
+        .classList.remove("hidden");
 
-    testResult.classList.remove("hidden");
+    let title;
+    let text;
 
+    if (testScore <= 7) {
 
-    const title =
-        document.getElementById("testResultTitle");
+        title = "Сначала подготовь почву";
 
-    const text =
-        document.getElementById("testResultText");
+        text =
+            "Переезд может быть возможен, но сейчас лучше сначала разобраться с деньгами, документами и источником дохода.";
 
+    } else if (testScore <= 14) {
 
-    if (testScore >= 15) {
+        title = "Тебе стоит изучить варианты";
 
-        title.textContent =
-            "У тебя уже есть хорошая база.";
-
-        text.textContent =
-            "Похоже, переезд для тебя может быть реалистичным сценарием. Теперь главное — выбрать страну, проверить документы и составить финансовый план.";
-
-    } else if (testScore >= 9) {
-
-        title.textContent =
-            "Рассматривать переезд можно, но подготовься.";
-
-        text.textContent =
-            "У тебя есть основания двигаться дальше, однако стоит закрыть финансовые, документальные или организационные вопросы.";
+        text =
+            "Похоже, у тебя уже есть некоторые основания рассматривать переезд. Не торопись — сначала сравни страны и условия.";
 
     } else {
 
-        title.textContent =
-            "Сначала подготовь фундамент.";
+        title = "У тебя есть сильная мотивация";
 
-        text.textContent =
-            "Это не значит, что переезд тебе не подходит. Скорее всего, сейчас лучше сначала разобраться с деньгами, документами и планом.";
+        text =
+            "Похоже, ты достаточно серьёзно рассматриваешь переезд. Следующий шаг — выбрать направление и составить реальный план.";
 
     }
 
-}
+    document.getElementById("testResultTitle")
+        .textContent = title;
 
+    document.getElementById("testResultText")
+        .textContent = text;
+}
 
 document
     .getElementById("restartTest")
     .addEventListener("click", () => {
 
         currentQuestion = 0;
-
         testScore = 0;
 
-        questionContainer.style.display = "";
+        document
+            .getElementById("testResult")
+            .classList.add("hidden");
 
-        testProgress.style.display = "";
+        document
+            .getElementById("questionContainer")
+            .classList.remove("hidden");
 
-        testResult.classList.add("hidden");
+        renderQuestion();
+    });
 
-        showQuestion();
+renderQuestion();
+
+
+/* =========================================================
+   INFO MODALS
+========================================================= */
+
+const infoModal =
+    document.getElementById("infoModal");
+
+const modalText =
+    document.getElementById("modalText");
+
+const modalTitle =
+    document.getElementById("modalTitle");
+
+document
+    .querySelectorAll(".info-button")
+    .forEach(button => {
+
+        button.addEventListener("click", () => {
+
+            modalTitle.textContent =
+                "Что это значит?";
+
+            modalText.textContent =
+                button.dataset.info;
+
+            infoModal.classList.remove("hidden");
+        });
 
     });
 
+document
+    .getElementById("closeModal")
+    .addEventListener("click", () => {
 
-showQuestion();
+        infoModal.classList.add("hidden");
+    });
 
 
-/* =====================================================
-   KNOWLEDGE BASE
-===================================================== */
+/* =========================================================
+   KNOWLEDGE MODALS
+========================================================= */
 
-const knowledge = {
+const knowledgeData = {
 
     documents: {
-
-        title: "📄 Документы",
-
+        title: "Документы",
         html: `
-            <div class="modal-text">
+            <div class="knowledge-modal-content">
 
                 <p>
-                    Документы — одна из самых важных частей
-                    подготовки к переезду.
+                    Документы зависят от страны, цели поездки
+                    и твоего статуса.
                 </p>
 
-                <h4>⭐ Основные документы</h4>
+                <h4>Основное</h4>
 
-                <div class="important-document">
-                    Заграничный паспорт
-                </div>
+                <ul>
+                    <li><strong>Паспорт</strong> — основной документ для поездки.</li>
+                    <li>Виза или другое основание для въезда.</li>
+                    <li>Подтверждение проживания.</li>
+                    <li>Финансовые документы — если их требует страна.</li>
+                    <li>Медицинские документы — если требуются.</li>
+                </ul>
 
-                <div class="important-document">
-                    Виза или другое основание для въезда
-                </div>
-
-                <div class="important-document">
-                    Документы для ВНЖ, если он нужен
-                </div>
-
-                <div class="important-document">
-                    Свидетельство о рождении
-                </div>
-
-                <div class="important-document">
-                    Документы об образовании
-                </div>
-
-                <div class="important-document">
-                    Медицинские документы и справки
-                </div>
-
-                <h4>Что такое апостиль?</h4>
+                <h4>Апостиль</h4>
 
                 <p>
-                    <strong>Апостиль</strong> — специальное
-                    подтверждение подлинности документа для его
-                    использования в другой стране, если между
-                    странами применяется такой порядок.
+                    Апостиль — специальное подтверждение
+                    подлинности документа для использования
+                    в другой стране в случаях, когда между странами
+                    действует соответствующий порядок.
                 </p>
 
-                <h4>Что такое ВНЖ?</h4>
+                <h4>Доверенность</h4>
 
                 <p>
-                    <strong>ВНЖ</strong> — вид на жительство.
-                    Документ или статус, который позволяет
-                    иностранцу законно проживать в стране
-                    определённый срок или постоянно, в зависимости
-                    от законодательства.
+                    Доверенность позволяет одному человеку
+                    официально действовать от имени другого
+                    в пределах предоставленных полномочий.
+                </p>
+
+                <p>
+                    Для конкретной страны всегда нужно проверять,
+                    нужна ли нотариальная форма, перевод,
+                    легализация или апостиль.
+                </p>
+
+            </div>
+        `
+    },
+
+    work: {
+        title: "Работа",
+        html: `
+            <div class="knowledge-modal-content">
+
+                <p>
+                    Работа за границей может быть локальной,
+                    удалённой, сезонной или связанной с учёбой.
+                </p>
+
+                <h4>Перед поиском</h4>
+
+                <ul>
+                    <li>Проверь право на работу.</li>
+                    <li>Подготовь CV.</li>
+                    <li>Определи нужный язык.</li>
+                    <li>Изучи местные сайты вакансий.</li>
+                </ul>
+
+            </div>
+        `
+    },
+
+    study: {
+        title: "Учёба",
+        html: `
+            <div class="knowledge-modal-content">
+
+                <p>
+                    Для поступления могут понадобиться
+                    документы об образовании, переводы
+                    и подтверждение их подлинности.
+                </p>
+
+                <h4>Что проверить</h4>
+
+                <ul>
+                    <li>Требования университета.</li>
+                    <li>Язык обучения.</li>
+                    <li>Признание предыдущего образования.</li>
+                    <li>Перевод документов.</li>
+                    <li>Финансовые требования.</li>
+                </ul>
+
+            </div>
+        `
+    },
+
+    housing: {
+        title: "Жильё",
+        html: `
+            <div class="knowledge-modal-content">
+
+                <p>
+                    Перед арендой важно проверить договор,
+                    депозит, коммунальные расходы и условия
+                    досрочного расторжения.
+                </p>
+
+            </div>
+        `
+    },
+
+    packing: {
+        title: "Что взять с собой",
+        html: `
+            <div class="knowledge-modal-content">
+
+                <h4>Не забудь проверить</h4>
+
+                <ul>
+                    <li>Паспорт и копии.</li>
+                    <li>Документы об образовании.</li>
+                    <li>Медицинские документы.</li>
+                    <li>Банковские документы.</li>
+                    <li>Телефон и зарядку.</li>
+                    <li>Необходимую одежду.</li>
+                </ul>
+
+            </div>
+        `
+    },
+
+    rules: {
+        title: "Можно и нельзя",
+        html: `
+            <div class="knowledge-modal-content">
+
+                <p>
+                    У каждой страны есть собственные
+                    правила ввоза вещей, лекарства,
+                    валюты и других предметов.
+                </p>
+
+                <h4>Непредвиденные ситуации</h4>
+
+                <p>
+                    Здесь мы постепенно соберём инструкции:
+                    потеря паспорта, проблемы на границе,
+                    потеря денег, медицинские ситуации,
+                    контакт с консульством и другие случаи.
                 </p>
 
                 <h4>Важно</h4>
 
                 <p>
-                    Набор документов зависит от страны,
-                    гражданства и цели переезда.
-                </p>
-
-            </div>
-        `
-    },
-
-
-    work: {
-
-        title: "💼 Работа",
-
-        html: `
-            <div class="modal-text">
-
-                <p>
-                    Перед переездом важно понять,
-                    на каком основании ты будешь работать.
-                </p>
-
-                <h4>⭐ Что проверить</h4>
-
-                <div class="important-document">
-                    Нужно ли разрешение на работу
-                </div>
-
-                <div class="important-document">
-                    Можно ли работать по твоему типу визы
-                </div>
-
-                <div class="important-document">
-                    Нужно ли официальное трудоустройство
-                </div>
-
-                <div class="important-document">
-                    Нужно ли платить налоги
-                </div>
-
-                <h4>Варианты</h4>
-
-                <ul>
-                    <li>Работа у местного работодателя</li>
-                    <li>Удалённая работа</li>
-                    <li>Работа через международную компанию</li>
-                    <li>Собственный бизнес</li>
-                    <li>Работа после обучения</li>
-                </ul>
-
-            </div>
-        `
-    },
-
-
-    study: {
-
-        title: "🎓 Учёба",
-
-        html: `
-            <div class="modal-text">
-
-                <p>
-                    Учёба может быть отдельным основанием
-                    для переезда.
-                </p>
-
-                <h4>⭐ Для университета обычно нужно проверить</h4>
-
-                <div class="important-document">
-                    Аттестат или диплом
-                </div>
-
-                <div class="important-document">
-                    Подтверждение образования
-                </div>
-
-                <div class="important-document">
-                    Перевод документов
-                </div>
-
-                <div class="important-document">
-                    Языковые требования
-                </div>
-
-                <div class="important-document">
-                    Финансовые требования
-                </div>
-
-                <h4>Как искать университет?</h4>
-
-                <p>
-                    Начинай с официального сайта университета.
-                    Проверяй требования именно для иностранных
-                    студентов и свою образовательную программу.
-                </p>
-
-                <h4>Что такое подтверждение образования?</h4>
-
-                <p>
-                    Это процедура, с помощью которой страна или
-                    учебное заведение проверяет иностранный документ
-                    об образовании и определяет, как его признавать
-                    в своей системе.
-                </p>
-
-            </div>
-        `
-    },
-
-
-    housing: {
-
-        title: "🏠 Жильё",
-
-        html: `
-            <div class="modal-text">
-
-                <h4>До приезда</h4>
-
-                <p>
-                    Желательно заранее найти временное жильё
-                    хотя бы на первые дни или недели.
-                </p>
-
-                <h4>⭐ Что проверить перед арендой</h4>
-
-                <div class="important-document">
-                    Кто сдаёт жильё
-                </div>
-
-                <div class="important-document">
-                    Есть ли договор
-                </div>
-
-                <div class="important-document">
-                    Размер депозита
-                </div>
-
-                <div class="important-document">
-                    Дополнительные комиссии
-                </div>
-
-                <div class="important-document">
-                    Можно ли зарегистрироваться по адресу
-                </div>
-
-                <h4>⚠️ Осторожно</h4>
-
-                <p>
-                    Не отправляй крупные суммы неизвестному человеку
-                    без проверки жилья и условий аренды.
-                </p>
-
-            </div>
-        `
-    },
-
-
-    packing: {
-
-        title: "🎒 Что взять",
-
-        html: `
-            <div class="modal-text">
-
-                <h4>⭐ Самое важное</h4>
-
-                <div class="important-document">
-                    Паспорт и копии документов
-                </div>
-
-                <div class="important-document">
-                    Телефон и зарядка
-                </div>
-
-                <div class="important-document">
-                    Банковские карты
-                </div>
-
-                <div class="important-document">
-                    Документы об образовании
-                </div>
-
-                <div class="important-document">
-                    Медицинские документы
-                </div>
-
-                <h4>Полезно</h4>
-
-                <ul>
-                    <li>Переходник для розетки</li>
-                    <li>Аптечка</li>
-                    <li>Несколько копий документов</li>
-                    <li>Цифровые копии документов</li>
-                    <li>Контакты экстренных служб</li>
-                </ul>
-
-            </div>
-        `
-    },
-
-
-    emergency: {
-
-        title: "🚨 Непредвиденные ситуации",
-
-        html: `
-            <div class="modal-text">
-
-                <h4>❌ Что нельзя делать</h4>
-
-                <ul>
-                    <li>
-                        Не передавай паспорт посторонним без необходимости.
-                    </li>
-
-                    <li>
-                        Не соглашайся на нелегальную работу,
-                        если не понимаешь последствия.
-                    </li>
-
-                    <li>
-                        Не отправляй крупные суммы неизвестным людям
-                        за жильё или документы.
-                    </li>
-
-                    <li>
-                        Не нарушай миграционные сроки пребывания.
-                    </li>
-                </ul>
-
-                <h4>✅ Что можно и нужно делать</h4>
-
-                <ul>
-                    <li>
-                        Хранить цифровые копии документов.
-                    </li>
-
-                    <li>
-                        Иметь резерв денег.
-                    </li>
-
-                    <li>
-                        Знать адрес своего консульства.
-                    </li>
-
-                    <li>
-                        Хранить контакты экстренных служб.
-                    </li>
-
-                    <li>
-                        Проверять информацию через официальные источники.
-                    </li>
-                </ul>
-
-                <h4>Потерял паспорт</h4>
-
-                <p>
-                    В первую очередь нужно обратиться в полицию,
-                    если это требуется местными правилами,
-                    а затем связаться со своим консульством
-                    или дипломатическим представительством.
-                </p>
-
-                <h4>Нет денег</h4>
-
-                <p>
-                    Не принимай решения в панике. Проверь доступ
-                    к резервным средствам, свяжись с близкими
-                    и найди официальные организации, которые
-                    могут помочь в конкретной стране.
+                    Конкретные запреты нужно проверять
+                    по официальным источникам страны.
                 </p>
 
             </div>
@@ -719,232 +673,291 @@ const knowledge = {
 
 };
 
-
 document
-    .querySelectorAll(".knowledge-card")
-    .forEach(card => {
+    .querySelectorAll(".knowledge-open")
+    .forEach(button => {
 
-        card.addEventListener("click", () => {
+        button.addEventListener("click", () => {
 
-            const key =
-                card.dataset.knowledge;
+            const data =
+                knowledgeData[button.dataset.knowledge];
 
-            const item =
-                knowledge[key];
+            document
+                .getElementById("knowledgeModalTitle")
+                .textContent = data.title;
 
-            if (!item) return;
+            document
+                .getElementById("knowledgeModalContent")
+                .innerHTML = data.html;
 
-            openModal(`
-                <h2 class="modal-title">
-                    ${item.title}
-                </h2>
-
-                ${item.html}
-            `);
+            document
+                .getElementById("knowledgeModal")
+                .classList.remove("hidden");
 
         });
 
     });
 
 
-/* =====================================================
-   CURRENCY CONVERTER
-===================================================== */
+document
+    .getElementById("closeKnowledgeModal")
+    .addEventListener("click", () => {
 
-const currencies = {
+        document
+            .getElementById("knowledgeModal")
+            .classList.add("hidden");
 
-    USD: {
-        name: "🇺🇸 Доллар США",
-        symbol: "$"
-    },
-
-    EUR: {
-        name: "🇪🇺 Евро",
-        symbol: "€"
-    },
-
-    RUB: {
-        name: "🇷🇺 Российский рубль",
-        symbol: "₽"
-    },
-
-    GBP: {
-        name: "🇬🇧 Фунт стерлингов",
-        symbol: "£"
-    },
-
-    ARS: {
-        name: "🇦🇷 Аргентинское песо",
-        symbol: "$"
-    },
-
-    GEL: {
-        name: "🇬🇪 Грузинский лари",
-        symbol: "₾"
-    },
-
-    RSD: {
-        name: "🇷🇸 Сербский динар",
-        symbol: "дин."
-    },
-
-    THB: {
-        name: "🇹🇭 Тайский бат",
-        symbol: "฿"
-    },
-
-    VND: {
-        name: "🇻🇳 Вьетнамский донг",
-        symbol: "₫"
-    },
-
-    KZT: {
-        name: "🇰🇿 Казахстанский тенге",
-        symbol: "₸"
-    },
-
-    TRY: {
-        name: "🇹🇷 Турецкая лира",
-        symbol: "₺"
-    },
-
-    PLN: {
-        name: "🇵🇱 Польский злотый",
-        symbol: "zł"
-    },
-
-    CZK: {
-        name: "🇨🇿 Чешская крона",
-        symbol: "Kč"
-    }
-
-};
+    });
 
 
-function fillCurrencySelects() {
+/* =========================================================
+   CLOSE MODALS BY OVERLAY
+========================================================= */
 
-    const from =
-        document.getElementById("currencyFrom");
+document
+    .querySelectorAll(".modal-overlay")
+    .forEach(overlay => {
 
-    const to =
-        document.getElementById("currencyTo");
+        overlay.addEventListener("click", () => {
 
-
-    Object.entries(currencies)
-        .forEach(([code, data]) => {
-
-            const optionFrom =
-                document.createElement("option");
-
-            optionFrom.value = code;
-
-            optionFrom.textContent =
-                `${data.name} (${code})`;
-
-            from.appendChild(optionFrom);
-
-
-            const optionTo =
-                document.createElement("option");
-
-            optionTo.value = code;
-
-            optionTo.textContent =
-                `${data.name} (${code})`;
-
-            to.appendChild(optionTo);
+            overlay
+                .closest(".modal")
+                .classList.add("hidden");
 
         });
 
-
-    from.value = "RUB";
-    to.value = "USD";
-}
+    });
 
 
-fillCurrencySelects();
+/* =========================================================
+   CURRENCY
+========================================================= */
+
+const currencyFrom =
+    document.getElementById("currencyFrom");
+
+const currencyTo =
+    document.getElementById("currencyTo");
+
+const currencyAmount =
+    document.getElementById("currencyAmount");
+
+const currencyResult =
+    document.getElementById("currencyResult");
+
+const currencyDate =
+    document.getElementById("currencyDate");
 
 
-async function convertCurrency() {
+const currencyNames = {
 
-    const amount =
-        Number(
-            document.getElementById("currencyAmount").value
-        ) || 0;
+    USD: ["🇺🇸", "Доллар США", "$"],
+    EUR: ["🇪🇺", "Евро", "€"],
+    GBP: ["🇬🇧", "Фунт стерлингов", "£"],
+    JPY: ["🇯🇵", "Японская иена", "¥"],
+    CNY: ["🇨🇳", "Китайский юань", "¥"],
+    KRW: ["🇰🇷", "Южнокорейская вона", "₩"],
+    INR: ["🇮🇳", "Индийская рупия", "₹"],
+    AUD: ["🇦🇺", "Австралийский доллар", "A$"],
+    CAD: ["🇨🇦", "Канадский доллар", "C$"],
+    NZD: ["🇳🇿", "Новозеландский доллар", "NZ$"],
+    SGD: ["🇸🇬", "Сингапурский доллар", "S$"],
+    HKD: ["🇭🇰", "Гонконгский доллар", "HK$"],
+    CHF: ["🇨🇭", "Швейцарский франк", "CHF"],
+    NOK: ["🇳🇴", "Норвежская крона", "kr"],
+    SEK: ["🇸🇪", "Шведская крона", "kr"],
+    DKK: ["🇩🇰", "Датская крона", "kr"],
+    PLN: ["🇵🇱", "Польский злотый", "zł"],
+    CZK: ["🇨🇿", "Чешская крона", "Kč"],
+    HUF: ["🇭🇺", "Венгерский форинт", "Ft"],
+    RON: ["🇷🇴", "Румынский лей", "lei"],
+    BGN: ["🇧🇬", "Болгарский лев", "лв"],
+    RSD: ["🇷🇸", "Сербский динар", "дин"],
+    TRY: ["🇹🇷", "Турецкая лира", "₺"],
+    GEL: ["🇬🇪", "Грузинский лари", "₾"],
+    AMD: ["🇦🇲", "Армянский драм", "֏"],
+    AZN: ["🇦🇿", "Азербайджанский манат", "₼"],
+    KZT: ["🇰🇿", "Казахстанский тенге", "₸"],
+    UZS: ["🇺🇿", "Узбекский сум", "сўм"],
+    THB: ["🇹🇭", "Тайский бат", "฿"],
+    VND: ["🇻🇳", "Вьетнамский донг", "₫"],
+    IDR: ["🇮🇩", "Индонезийская рупия", "Rp"],
+    MYR: ["🇲🇾", "Малайзийский ринггит", "RM"],
+    PHP: ["🇵🇭", "Филиппинское песо", "₱"],
+    MXN: ["🇲🇽", "Мексиканское песо", "$"],
+    BRL: ["🇧🇷", "Бразильский реал", "R$"],
+    ARS: ["🇦🇷", "Аргентинское песо", "$"],
+    CLP: ["🇨🇱", "Чилийское песо", "$"],
+    COP: ["🇨🇴", "Колумбийское песо", "$"],
+    UAH: ["🇺🇦", "Украинская гривна", "₴"],
+    ISK: ["🇮🇸", "Исландская крона", "kr"],
+    ZAR: ["🇿🇦", "Южноафриканский рэнд", "R"],
+    MAD: ["🇲🇦", "Марокканский дирхам", "د.م."],
+    EGP: ["🇪🇬", "Египетский фунт", "£"],
+    AED: ["🇦🇪", "Дирхам ОАЭ", "د.إ"],
+    SAR: ["🇸🇦", "Саудовский риял", "﷼"],
+    ILS: ["🇮🇱", "Новый израильский шекель", "₪"],
+    BRL: ["🇧🇷", "Бразильский реал", "R$"],
+    USD: ["🇺🇸", "Доллар США", "$"],
+    EUR: ["🇪🇺", "Евро", "€"]
+};
 
-    const from =
-        document.getElementById("currencyFrom").value;
 
-    const to =
-        document.getElementById("currencyTo").value;
+/*
+    Frankfurter поддерживает собственный список валют.
+    Получаем его автоматически.
+*/
 
-    const result =
-        document.getElementById("currencyResult");
-
-    const date =
-        document.getElementById("currencyDate");
-
-
-    if (from === to) {
-
-        result.textContent =
-            `${amount.toLocaleString("ru-RU")} ${currencies[to].symbol}`;
-
-        date.textContent =
-            "Одинаковые валюты.";
-
-        return;
-    }
-
-
-    result.textContent =
-        "Загружаем курс...";
-
+async function loadCurrencies() {
 
     try {
 
-        const url =
-            `https://api.frankfurter.app/latest?amount=${amount}&from=${from}&to=${to}`;
-
-
         const response =
-            await fetch(url);
-
+            await fetch(
+                "https://api.frankfurter.dev/v2/currencies"
+            );
 
         if (!response.ok) {
-            throw new Error("Ошибка курса");
+            throw new Error("Currency API error");
         }
-
 
         const data =
             await response.json();
 
+        const currencies =
+            Object.keys(data).sort();
 
-        const converted =
-            data.rates[to];
-
-
-        result.textContent =
-            `${amount.toLocaleString("ru-RU")} ${currencies[from].symbol} ≈ ${converted.toLocaleString("ru-RU", {
-                maximumFractionDigits: 2
-            })} ${currencies[to].symbol}`;
-
-
-        date.textContent =
-            `Курс обновлён: ${data.date}`;
+        populateCurrencySelects(currencies);
 
     } catch (error) {
 
         console.error(error);
 
-        result.textContent =
-            "Не удалось получить курс.";
+        /*
+            Резервный список,
+            если внешний API временно недоступен.
+        */
 
-        date.textContent =
-            "Попробуй обновить страницу.";
+        populateCurrencySelects(
+            Object.keys(currencyNames)
+        );
+    }
+}
 
+
+function populateCurrencySelects(currencies) {
+
+    const options =
+        currencies.map(code => {
+
+            const info =
+                currencyNames[code];
+
+            if (info) {
+
+                return `
+                    <option value="${code}">
+                        ${info[0]} ${info[1]} (${code})
+                    </option>
+                `;
+
+            }
+
+            return `
+                <option value="${code}">
+                    🌐 ${code}
+                </option>
+            `;
+
+        }).join("");
+
+    currencyFrom.innerHTML = options;
+    currencyTo.innerHTML = options;
+
+    currencyFrom.value = "USD";
+    currencyTo.value = "EUR";
+}
+
+
+async function convertCurrency() {
+
+    const amount =
+        Number(currencyAmount.value);
+
+    const from =
+        currencyFrom.value;
+
+    const to =
+        currencyTo.value;
+
+    if (!amount || amount < 0) {
+
+        currencyResult.textContent =
+            "Введите корректную сумму.";
+
+        return;
     }
 
+    if (from === to) {
+
+        currencyResult.textContent =
+            `${amount.toLocaleString()} ${from} = ${amount.toLocaleString()} ${to}`;
+
+        currencyDate.textContent =
+            "Одинаковая валюта.";
+
+        return;
+    }
+
+    currencyResult.textContent =
+        "Получаем актуальный курс...";
+
+    currencyDate.textContent = "";
+
+    try {
+
+        const response =
+            await fetch(
+                `https://api.frankfurter.dev/v2/rate/${from}/${to}`
+            );
+
+        if (!response.ok) {
+            throw new Error("Conversion failed");
+        }
+
+        const data =
+            await response.json();
+
+        const result =
+            amount * data.rate;
+
+        currencyResult.textContent =
+            `${formatNumber(amount)} ${from} = ${formatNumber(result)} ${to}`;
+
+        currencyDate.textContent =
+            `Курс: 1 ${from} = ${formatNumber(data.rate)} ${to} · дата курса: ${data.date}`;
+
+    } catch (error) {
+
+        console.error(error);
+
+        currencyResult.textContent =
+            "Не удалось получить курс. Попробуйте ещё раз.";
+
+        currencyDate.textContent =
+            "Источник курса временно недоступен.";
+    }
+}
+
+
+function formatNumber(number) {
+
+    return Number(number).toLocaleString(
+        "ru-RU",
+        {
+            maximumFractionDigits: 4
+        }
+    );
 }
 
 
@@ -956,4 +969,13 @@ document
     );
 
 
-convertCurrency();
+loadCurrencies();
+
+
+/* =========================================================
+   INITIAL SETTINGS
+========================================================= */
+
+document
+    .getElementById("currencyFrom")
+    .value = "USD";

@@ -21,6 +21,7 @@
 
         <a href="#top" class="logo">
             <span class="logo-mark">↗</span>
+
             <span>
                 <strong>ТОЧКА ВЫХОДА</strong>
                 <small>выход есть всегда</small>
@@ -50,8 +51,6 @@
 
 <main id="top">
 
-<!-- HERO -->
-
 <section class="hero">
 
     <div class="hero-glow hero-glow-one"></div>
@@ -71,14 +70,16 @@
             </h1>
 
             <p class="hero-text">
-                Разберись, какие страны подходят именно под твою
-                ситуацию, сколько может стоить переезд и что делать дальше.
+                Разберись, стоит ли тебе рассматривать переезд,
+                какие страны подходят под твою ситуацию,
+                сколько это может стоить и что делать дальше.
             </p>
 
             <div class="hero-actions">
 
                 <a href="#countries" class="btn btn-primary">
-                    Подобрать страну →
+                    Подобрать страну
+                    <span>→</span>
                 </a>
 
                 <a href="#test" class="btn btn-secondary">
@@ -144,8 +145,6 @@
 </section>
 
 
-<!-- QUICK TOOLS -->
-
 <section class="quick-tools">
 
     <div class="container">
@@ -162,8 +161,8 @@
                 <div class="tool-icon">🌎</div>
                 <h3>Подобрать страну</h3>
                 <p>
-                    Сравни направления по региону,
-                    валюте, языкам и другим параметрам.
+                    Сравни направления и найди страны,
+                    которые могут подойти именно тебе.
                 </p>
                 <span class="tool-link">Начать →</span>
             </a>
@@ -173,8 +172,8 @@
                 <div class="tool-icon">💰</div>
                 <h3>Рассчитать переезд</h3>
                 <p>
-                    Рассчитай ориентировочный бюджет
-                    полностью в долларах.
+                    Получи ориентировочный бюджет
+                    переезда в долларах.
                 </p>
                 <span class="tool-link">Рассчитать →</span>
             </a>
@@ -184,8 +183,8 @@
                 <div class="tool-icon">🤔</div>
                 <h3>Стоит ли уезжать?</h3>
                 <p>
-                    Посмотри на свою ситуацию со стороны
-                    и найди слабые места.
+                    Посмотри на свою ситуацию
+                    со стороны.
                 </p>
                 <span class="tool-link">Пройти тест →</span>
             </a>
@@ -195,8 +194,6 @@
     </div>
 </section>
 
-
-<!-- COUNTRIES -->
 
 <section class="section" id="countries">
 
@@ -219,6 +216,7 @@
             </p>
 
         </div>
+
 
         <div class="country-controls">
 
@@ -244,19 +242,12 @@
 
         </div>
 
-        <div id="countryGrid" class="country-grid">
 
-            <div class="loading">
-                Загружаем страны...
-            </div>
-
-        </div>
+        <div id="countryGrid" class="country-grid"></div>
 
     </div>
 </section>
 
-
-<!-- CALCULATOR -->
 
 <section class="section calculator-section" id="calculator">
 
@@ -274,8 +265,8 @@
             </div>
 
             <p>
-                Все суммы указаны в долларах США.
-                Расчёт ориентировочный.
+                Все суммы указываются в долларах США.
+                Это ориентир, а не точный расчёт.
             </p>
 
         </div>
@@ -310,11 +301,14 @@
                     <input type="number" id="insurance" value="100" min="0">
                 </label>
 
-                <label>
+                <label class="info-label">
                     🍜 Первые расходы
-                    <span class="info-wrap">
-                        <button type="button" class="info-button" data-info="Первые расходы — это деньги на первые дни после приезда: еда, связь, бытовые вещи, транспорт и другие мелкие покупки до того момента, когда ты полностью обустроишься.">!</button>
-                    </span>
+                    <button
+                        type="button"
+                        class="info-button"
+                        data-info="Первые расходы — это ориентировочная сумма на еду, транспорт, связь и другие базовые расходы в первые дни после приезда."
+                    >!</button>
+
                     <input type="number" id="food" value="300" min="0">
                 </label>
 
@@ -323,11 +317,14 @@
                     <input type="number" id="transport" value="100" min="0">
                 </label>
 
-                <label>
+                <label class="info-label">
                     💰 Резерв
-                    <span class="info-wrap">
-                        <button type="button" class="info-button" data-info="Резерв — деньги, которые желательно не планировать на обычные расходы. Они нужны на случай задержки документов, поиска жилья, болезни, потери работы или другой непредвиденной ситуации.">!</button>
-                    </span>
+                    <button
+                        type="button"
+                        class="info-button"
+                        data-info="Резерв — деньги, которые желательно не тратить сразу. Он нужен на непредвиденные расходы после переезда."
+                    >!</button>
+
                     <input type="number" id="reserve" value="1000" min="0">
                 </label>
 
@@ -337,6 +334,10 @@
                 >
                     Рассчитать
                 </button>
+
+                <a href="#currency" class="calculator-converter-link">
+                    💱 Нужна другая валюта? Открыть конвертер →
+                </a>
 
             </div>
 
@@ -372,10 +373,6 @@
                     города, сезона, документов и личной ситуации.
                 </p>
 
-                <a href="#currency" class="calculator-converter-link">
-                    💱 Нужна другая валюта? Открыть конвертер →
-                </a>
-
             </div>
 
         </div>
@@ -383,8 +380,6 @@
     </div>
 </section>
 
-
-<!-- TEST -->
 
 <section class="section test-section" id="test">
 
@@ -423,15 +418,11 @@
             <div id="questionContainer">
 
                 <div class="question">
-
                     <span class="question-number">01</span>
 
-                    <h3 id="questionText">
-                        Что сильнее всего заставляет тебя думать о переезде?
-                    </h3>
+                    <h3 id="questionText"></h3>
 
                     <div id="answers" class="answers"></div>
-
                 </div>
 
             </div>
@@ -459,8 +450,6 @@
 </section>
 
 
-<!-- KNOWLEDGE BASE -->
-
 <section class="section" id="knowledge">
 
     <div class="container">
@@ -471,13 +460,15 @@
                 <span class="section-label">📚 БАЗА</span>
 
                 <h2>
-                    Всё необходимое
-                    <span>в одном месте</span>
+                    База, которую
+                    <span>мы будем расширять</span>
                 </h2>
             </div>
 
             <p>
-                Нажми на любой раздел, чтобы открыть подробную информацию.
+                Сейчас закладываем структуру.
+                Позже каждый раздел сможет открываться
+                как полноценная подробная страница.
             </p>
 
         </div>
@@ -485,65 +476,77 @@
 
         <div class="knowledge-grid">
 
-            <button class="knowledge-card" data-knowledge="documents">
+            <article class="knowledge-card clickable">
                 <span>📄</span>
                 <h3>Документы</h3>
                 <p>
-                    Паспорт, виза, ВНЖ, справки, апостиль
-                    и другие документы.
+                    Паспорт, визы, ВНЖ, справки,
+                    доверенности, апостиль и другое.
                 </p>
-                <b>Открыть →</b>
-            </button>
+                <button class="knowledge-open" data-knowledge="documents">
+                    Подробнее →
+                </button>
+            </article>
 
-            <button class="knowledge-card" data-knowledge="work">
+            <article class="knowledge-card clickable">
                 <span>💼</span>
                 <h3>Работа</h3>
                 <p>
-                    Работа на месте, удалёнка,
-                    разрешения и поиск работодателя.
+                    Поиск работы, удалёнка,
+                    учеба и другие варианты.
                 </p>
-                <b>Открыть →</b>
-            </button>
+                <button class="knowledge-open" data-knowledge="work">
+                    Подробнее →
+                </button>
+            </article>
 
-            <button class="knowledge-card" data-knowledge="study">
+            <article class="knowledge-card clickable">
                 <span>🎓</span>
                 <h3>Учёба</h3>
                 <p>
-                    Университеты, подтверждение образования,
-                    документы и поступление.
+                    Университеты, языковые курсы,
+                    поступление и подтверждение документов.
                 </p>
-                <b>Открыть →</b>
-            </button>
+                <button class="knowledge-open" data-knowledge="study">
+                    Подробнее →
+                </button>
+            </article>
 
-            <button class="knowledge-card" data-knowledge="housing">
+            <article class="knowledge-card clickable">
                 <span>🏠</span>
                 <h3>Жильё</h3>
                 <p>
-                    Аренда, депозит, районы,
-                    договор и первые дни.
+                    Аренда, районы, договоры
+                    и первые дни после приезда.
                 </p>
-                <b>Открыть →</b>
-            </button>
+                <button class="knowledge-open" data-knowledge="housing">
+                    Подробнее →
+                </button>
+            </article>
 
-            <button class="knowledge-card" data-knowledge="packing">
+            <article class="knowledge-card clickable">
                 <span>🎒</span>
                 <h3>Что взять</h3>
                 <p>
                     Документы, техника, лекарства,
                     одежда и полезные вещи.
                 </p>
-                <b>Открыть →</b>
-            </button>
+                <button class="knowledge-open" data-knowledge="packing">
+                    Подробнее →
+                </button>
+            </article>
 
-            <button class="knowledge-card emergency" data-knowledge="emergency">
+            <article class="knowledge-card emergency clickable">
                 <span>🚨</span>
-                <h3>Непредвиденные ситуации</h3>
+                <h3>Можно и нельзя</h3>
                 <p>
-                    Что делать, если потерял паспорт,
-                    деньги или столкнулся с проблемой.
+                    Местные правила, запреты,
+                    культурные особенности и непредвиденные ситуации.
                 </p>
-                <b>Открыть →</b>
-            </button>
+                <button class="knowledge-open" data-knowledge="rules">
+                    Подробнее →
+                </button>
+            </article>
 
         </div>
 
@@ -551,79 +554,63 @@
 </section>
 
 
-<!-- NEWS -->
-
-<section class="section news-section" id="news">
+<section class="section currency-section" id="currency">
 
     <div class="container">
 
         <div class="section-heading">
 
             <div>
-                <span class="section-label">📰 АКТУАЛЬНО</span>
+                <span class="section-label">💱 КОНВЕРТЕР</span>
 
                 <h2>
-                    Новости
-                    <span>будут здесь</span>
+                    Любая нужная
+                    <span>валюта</span>
                 </h2>
             </div>
 
             <p>
-                Раздел подготовлен. Автоматическую ленту подключим
-                отдельно, чтобы не использовать непроверенные данные.
+                Курсы загружаются автоматически.
+                Доступные валюты отображаются с названием,
+                кодом, символом и флагом страны.
             </p>
 
         </div>
 
-        <div class="news-placeholder">
-            <div>📰</div>
-            <h3>Новости пока не подключены</h3>
-            <p>
-                Следующим этапом подключим автоматическое получение
-                материалов из внешних источников.
-            </p>
-        </div>
-
-    </div>
-</section>
-
-
-<!-- CURRENCY -->
-
-<section class="section currency-section" id="currency">
-
-    <div class="container">
 
         <div class="currency-box">
 
-            <div>
-                <span class="section-label">💱 КОНВЕРТЕР</span>
-
-                <h2>Сравнить валюты</h2>
-
-                <p>
-                    Выбери сумму, валюту и страну.
-                    Курс загружается автоматически.
-                </p>
-            </div>
-
-
             <div class="currency-form">
 
-                <input
-                    type="number"
-                    id="currencyAmount"
-                    value="1000"
-                    min="0"
+                <div class="currency-input-group">
+                    <label>Сумма</label>
+
+                    <input
+                        type="number"
+                        id="currencyAmount"
+                        value="1000"
+                        min="0"
+                    >
+                </div>
+
+                <div class="currency-input-group">
+                    <label>Из</label>
+
+                    <select id="currencyFrom"></select>
+                </div>
+
+                <div class="currency-arrow">→</div>
+
+                <div class="currency-input-group">
+                    <label>В</label>
+
+                    <select id="currencyTo"></select>
+                </div>
+
+                <button
+                    id="convertButton"
+                    class="btn btn-primary"
                 >
-
-                <select id="currencyFrom"></select>
-
-                <span class="currency-arrow">→</span>
-
-                <select id="currencyTo"></select>
-
-                <button id="convertButton" class="btn btn-primary">
                     Конвертировать
                 </button>
 
@@ -631,20 +618,16 @@
 
 
             <div id="currencyResult" class="currency-result">
-                —
+                Выберите валюты и нажмите «Конвертировать».
             </div>
 
-            <div id="currencyDate" class="currency-date">
-                Курсы загружаются...
-            </div>
+            <div id="currencyDate" class="currency-date"></div>
 
         </div>
 
     </div>
 </section>
 
-
-<!-- SUPPORT -->
 
 <section class="support-section">
 
@@ -662,13 +645,8 @@
                 </h2>
 
                 <p>
-                    Базовые материалы, инструменты и навигатор
-                    должны оставаться доступными бесплатно.
-                </p>
-
-                <p>
-                    Если проект оказался полезным,
-                    его можно поддержать добровольным донатом.
+                    Базовая информация и инструменты
+                    должны оставаться доступными.
                 </p>
 
                 <a
@@ -701,8 +679,6 @@
 </section>
 
 
-<!-- DISCLAIMER -->
-
 <section class="disclaimer-section">
 
     <div class="container">
@@ -712,11 +688,12 @@
             <strong>⚠️ Важно</strong>
 
             <p>
-                «Точка выхода» предоставляет справочную и ориентировочную
-                информацию. Миграционные правила, визовые требования,
-                налоги и другие условия могут меняться.
-                Перед принятием важных решений всегда проверяй
-                информацию по официальному источнику.
+                «Точка выхода» предоставляет справочную
+                и ориентировочную информацию. Миграционные
+                правила, визовые требования, налоги,
+                цены и другие условия могут меняться.
+                Перед важными решениями проверяй информацию
+                по официальным источникам.
             </p>
 
         </div>
@@ -728,29 +705,23 @@
 </main>
 
 
-<!-- FOOTER -->
-
 <footer class="footer">
 
     <div class="container footer-inner">
 
         <div>
-
             <a href="#top" class="logo">
-
                 <span class="logo-mark">↗</span>
 
                 <span>
                     <strong>ТОЧКА ВЫХОДА</strong>
                     <small>выход есть всегда</small>
                 </span>
-
             </a>
 
             <p>
                 Личный навигатор по эмиграции.
             </p>
-
         </div>
 
 
@@ -786,17 +757,36 @@
 </footer>
 
 
-<!-- MODAL -->
+<div id="infoModal" class="modal hidden">
+    <div class="modal-overlay"></div>
 
-<div id="modal" class="modal hidden">
+    <div class="modal-card">
+
+        <button id="closeModal" class="modal-close">×</button>
+
+        <div class="modal-icon">ℹ️</div>
+
+        <h3 id="modalTitle">Информация</h3>
+
+        <p id="modalText"></p>
+
+    </div>
+</div>
+
+
+<div id="knowledgeModal" class="modal hidden">
 
     <div class="modal-overlay"></div>
 
-    <div class="modal-window">
+    <div class="modal-card knowledge-modal">
 
-        <button id="modalClose" class="modal-close">×</button>
+        <button id="closeKnowledgeModal" class="modal-close">×</button>
 
-        <div id="modalContent"></div>
+        <span class="section-label">📚 БАЗА</span>
+
+        <h3 id="knowledgeModalTitle"></h3>
+
+        <div id="knowledgeModalContent"></div>
 
     </div>
 
