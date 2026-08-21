@@ -1,281 +1,233 @@
-/* =========================================================
-   ТОЧКА ВЫХОДА — ANIMATIONS
-   Не меняет основную цветовую схему.
-========================================================= */
+.reveal {
+    opacity: 0;
+    transform: translateY(25px);
 
-html {
-    scroll-behavior: smooth;
+    transition:
+        opacity 0.8s ease,
+        transform 0.8s ease;
 }
 
-/* ---------- HERO ---------- */
 
-.hero-content {
-    animation: heroContentIn .8s ease both;
+.reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
 }
 
-.hero-card {
-    animation: heroCardIn .9s .12s ease both;
+
+/* Плавное движение самолётика */
+
+.plane {
+    animation:
+        planeFloat 3s ease-in-out infinite,
+        planeFlight 7s ease-in-out infinite;
 }
 
-@keyframes heroContentIn {
-    from {
-        opacity: 0;
-        transform: translateY(24px);
-    }
 
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
+@keyframes planeFloat {
 
-@keyframes heroCardIn {
-    from {
-        opacity: 0;
-        transform: translateY(30px) scale(.97);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-    }
-}
-
-/* ---------- GLOW ---------- */
-
-.hero-glow-one {
-    animation: glowOne 8s ease-in-out infinite alternate;
-}
-
-.hero-glow-two {
-    animation: glowTwo 10s ease-in-out infinite alternate;
-}
-
-@keyframes glowOne {
-    from {
-        transform: translate3d(0, 0, 0) scale(1);
-    }
-
-    to {
-        transform: translate3d(-35px, 25px, 0) scale(1.12);
-    }
-}
-
-@keyframes glowTwo {
-    from {
-        transform: translate3d(0, 0, 0) scale(1);
-    }
-
-    to {
-        transform: translate3d(30px, -25px, 0) scale(1.08);
-    }
-}
-
-/* ---------- LIVE DOT ---------- */
-
-.live-dot {
-    animation: livePulse 2s ease-in-out infinite;
-}
-
-@keyframes livePulse {
     0%,
     100% {
-        opacity: 1;
-        transform: scale(1);
+        transform: translateY(0) rotate(-8deg);
     }
 
     50% {
-        opacity: .45;
-        transform: scale(.72);
+        transform: translateY(-8px) rotate(-3deg);
     }
+
 }
 
-/* ---------- BUTTONS ---------- */
 
-.btn {
-    transition:
-        transform .22s ease,
-        box-shadow .22s ease,
-        background-color .22s ease;
+@keyframes planeFlight {
+
+    0% {
+        left: 48%;
+    }
+
+    45% {
+        left: 61%;
+    }
+
+    70% {
+        left: 54%;
+    }
+
+    100% {
+        left: 48%;
+    }
+
 }
 
-.btn:hover {
-    transform: translateY(-3px);
+
+/* Точки карты */
+
+.map-dot {
+    animation: dotPulse 2.8s ease-in-out infinite;
 }
 
-.btn:active {
-    transform: translateY(0) scale(.98);
+
+.dot-2 {
+    animation-delay: .4s;
 }
 
-.btn-primary:hover {
-    box-shadow:
-        0 14px 32px rgba(8,127,196,.28);
+
+.dot-3 {
+    animation-delay: .8s;
 }
 
-/* ---------- CARDS ---------- */
 
-.tool-card,
-.country-card,
-.knowledge-card {
-    transition:
-        transform .25s ease,
-        box-shadow .25s ease,
-        border-color .25s ease;
+.dot-4 {
+    animation-delay: 1.2s;
 }
 
-.tool-card:hover,
-.country-card:hover,
-.knowledge-card:hover {
-    transform: translateY(-5px);
-    box-shadow:
-        0 18px 45px rgba(30,110,150,.10);
+
+.dot-5 {
+    animation-delay: 1.6s;
 }
 
-/* ---------- ROUTE ---------- */
 
-.route-item {
-    transition:
-        transform .25s ease,
-        background .25s ease;
-}
+@keyframes dotPulse {
 
-.route-item:hover {
-    transform: translateX(5px);
-}
-
-.route-item.active {
-    animation: routeActive 3s ease-in-out infinite;
-}
-
-@keyframes routeActive {
     0%,
     100% {
-        box-shadow: 0 0 0 rgba(8,127,196,0);
+        box-shadow:
+            0 0 0 7px rgba(91, 160, 204, 0.13),
+            0 0 20px rgba(91, 160, 204, 0.3);
     }
 
     50% {
         box-shadow:
-            0 0 0 5px rgba(8,127,196,.035);
+            0 0 0 13px rgba(91, 160, 204, 0.04),
+            0 0 30px rgba(91, 160, 204, 0.4);
     }
+
 }
 
-/* ---------- COUNTRY BUTTON ---------- */
 
-.country-open {
-    transition:
-        background .2s ease,
-        border-color .2s ease,
-        transform .2s ease;
+/* Пунктирный маршрут */
+
+.flight-line {
+    animation: routeMove 2s linear infinite;
 }
 
-.country-open:hover {
-    transform: translateY(-2px);
+
+@keyframes routeMove {
+
+    from {
+        background-position: 0 0;
+    }
+
+    to {
+        background-position: 23px 0;
+    }
+
 }
 
-/* ---------- ANSWERS ---------- */
 
-.answer-button {
-    transition:
-        transform .2s ease,
-        border-color .2s ease,
-        background .2s ease,
-        box-shadow .2s ease;
+/* Лёгкое парение карточек */
+
+.tool-card:nth-child(1) {
+    animation-delay: 0s;
 }
 
-.answer-button:hover {
-    box-shadow:
-        0 8px 20px rgba(8,127,196,.08);
+
+.tool-card:nth-child(2) {
+    animation-delay: .15s;
 }
 
-/* ---------- INPUTS ---------- */
 
-input,
-select {
-    transition:
-        border-color .2s ease,
-        box-shadow .2s ease;
+.tool-card:nth-child(3) {
+    animation-delay: .3s;
 }
 
-input:focus,
-select:focus {
-    border-color: #74c4e8 !important;
 
-    box-shadow:
-        0 0 0 4px rgba(8,127,196,.08);
-}
-
-/* ---------- MODALS ---------- */
-
-.modal-card {
-    animation: modalIn .25s ease both;
-}
+/* Modal */
 
 @keyframes modalIn {
+
     from {
         opacity: 0;
-        transform: translateY(18px) scale(.98);
+        transform: translateY(20px) scale(.97);
     }
 
     to {
         opacity: 1;
         transform: translateY(0) scale(1);
     }
+
 }
 
-/* ---------- SCROLL REVEAL ---------- */
 
-@media (prefers-reduced-motion: no-preference) {
+/* Появление результатов калькулятора */
 
-    .section-heading,
-    .tool-card,
-    .country-card,
-    .calculator,
-    .test-box,
-    .knowledge-card,
-    .currency-box,
-    .support-box {
-        animation: softAppear .65s ease both;
-    }
+.result-pop {
+    animation: resultPop .4s ease;
 }
 
-@keyframes softAppear {
-    from {
+
+@keyframes resultPop {
+
+    0% {
         opacity: 0;
-        transform: translateY(18px);
+        transform: translateY(8px);
     }
 
-    to {
+    100% {
         opacity: 1;
         transform: translateY(0);
     }
+
 }
 
-/* ---------- MOBILE ---------- */
 
-@media (max-width: 700px) {
+/* Пульсация CTA */
 
-    .hero-content,
-    .hero-card {
-        animation-duration: .6s;
-    }
-
-    .tool-card:hover,
-    .country-card:hover,
-    .knowledge-card:hover {
-        transform: translateY(-2px);
-    }
+.button-primary {
+    position: relative;
+    overflow: hidden;
 }
 
-/* ---------- ACCESSIBILITY ---------- */
+
+.button-primary::after {
+    content: "";
+
+    position: absolute;
+
+    top: 0;
+    left: -120%;
+
+    width: 70%;
+    height: 100%;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            rgba(255,255,255,.25),
+            transparent
+        );
+
+    transform: skewX(-20deg);
+
+    transition: left .7s ease;
+}
+
+
+.button-primary:hover::after {
+    left: 150%;
+}
+
+
+/* Уважение к системному reduced motion */
 
 @media (prefers-reduced-motion: reduce) {
 
     *,
     *::before,
     *::after {
-        animation-duration: .01ms !important;
+        animation-duration: 0.01ms !important;
         animation-iteration-count: 1 !important;
         scroll-behavior: auto !important;
-        transition-duration: .01ms !important;
+        transition-duration: 0.01ms !important;
     }
+
 }
