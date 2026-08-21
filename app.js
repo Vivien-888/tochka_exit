@@ -1,981 +1,1031 @@
-/* =========================================================
-   COUNTRY SYSTEM
-========================================================= */
+document.addEventListener("DOMContentLoaded", () => {
 
-const countryGrid = document.getElementById("countryGrid");
-const countrySearch = document.getElementById("countrySearch");
-const regionFilter = document.getElementById("regionFilter");
+    const app = {
+        currentPage: "home",
+        currentCountry: null,
+        currentArticle: null,
+        continent: "all",
+        search: "",
 
-function renderCountries() {
+        init() {
+            this.cache();
+            this.bindNavigation();
+            this.renderContinents();
+            this.renderCountries();
+            this.renderFeatured();
+            this.renderKnowledge();
+            this.initCalculator();
+            this.initConverter();
+            this.initTooltip();
+            this.hideLoader();
+            this.handleInitialPage();
+        },
 
-    const search = countrySearch.value
-        .trim()
-        .toLowerCase();
+        cache() {
+            this.pages = document.querySelectorAll(".page");
+            this.nav = document.getElementById("mainNav");
+            this.mobileMenuBtn = document.getElementById("mobileMenuBtn");
+        },
 
-    const region = regionFilter.value;
+        hideLoader() {
+            setTimeout(() => {
+                document.getElementById("pageLoader")?.classList.add("hidden");
+            }, 700);
+        },
 
-    const filtered = countries.filter(country => {
+        handleInitialPage() {
+            const hash = window.location.hash.replace("#", "");
 
-        const matchesSearch =
-            country.name.toLowerCase().includes(search) ||
-            country.capital.toLowerCase().includes(search) ||
-            country.language.toLowerCase().includes(search) ||
-            country.currency.toLowerCase().includes(search);
+            if (hash === "countries") {
+                this.showPage("countries");
+            } else if (hash === "knowledge") {
+                this.showPage("knowledge");
+            } else if (hash === "calculator") {
+                this.showPage("calculator");
+            } else if (hash === "converter") {
+                this.showPage("converter");
+            } else {
+                this.showPage("home");
+            }
+        },
 
-        const matchesRegion =
-            region === "all" ||
-            country.region === region;
+        bindNavigation() {
 
-        return matchesSearch && matchesRegion;
-    });
+            document.addEventListener("click", (event) => {
 
-    if (!filtered.length) {
+                const button = event.target.closest("[data-page]");
 
-        countryGrid.innerHTML = `
-            <div class="loading">
-                Ничего не найдено.
-            </div>
-        `;
+                if (!button) return;
 
-        return;
-    }
+                const page = button.dataset.page;
 
-    countryGrid.innerHTML = filtered.map(country => `
+                if (page) {
+                    this.showPage(page);
+                }
 
-        <article class="country-card">
-
-            <div class="country-flag">
-                ${country.flag}
-            </div>
-
-            <h3>
-                ${country.name}
-            </h3>
-
-            <div class="country-meta">
-                ${country.capital} · ${country.currency}
-            </div>
-
-            <div class="country-tags">
-
-                ${country.tags.map(tag => `
-                    <span class="country-tag">
-                        ${tag}
-                    </span>
-                `).join("")}
-
-            </div>
-
-            <button
-                class="country-open"
-                data-country="${country.id}"
-            >
-                Подробнее о стране →
-            </button>
-
-        </article>
-
-    `).join("");
-
-    document
-        .querySelectorAll(".country-open")
-        .forEach(button => {
-
-            button.addEventListener("click", () => {
-
-                const country = countries.find(
-                    item => item.id === button.dataset.country
-                );
-
-                openCountryModal(country);
             });
 
-        });
-}
-
-
-countrySearch.addEventListener(
-    "input",
-    renderCountries
-);
-
-regionFilter.addEventListener(
-    "change",
-    renderCountries
-);
-
-renderCountries();
-
-
-/* =========================================================
-   COUNTRY MODAL
-========================================================= */
-
-function openCountryModal(country) {
-
-    const modal = document.getElementById("knowledgeModal");
-
-    const title =
-        document.getElementById("knowledgeModalTitle");
-
-    const content =
-        document.getElementById("knowledgeModalContent");
-
-    title.innerHTML = "";
-
-    content.innerHTML = `
-
-        <div class="country-detail">
-
-            <div class="country-detail-flag">
-                ${country.flag}
-            </div>
-
-            <h3>
-                ${country.name}
-            </h3>
-
-            <p>
-                ${country.description}
-            </p>
-
-            <div class="country-detail-grid">
-
-                <div class="detail-item">
-                    <strong>СТОЛИЦА</strong>
-                    <span>${country.capital}</span>
-                </div>
-
-                <div class="detail-item">
-                    <strong>ВАЛЮТА</strong>
-                    <span>${country.currency}</span>
-                </div>
-
-                <div class="detail-item">
-                    <strong>ЯЗЫК</strong>
-                    <span>${country.language}</span>
-                </div>
-
-                <div class="detail-item">
-                    <strong>КЛИМАТ</strong>
-                    <span>${country.climate}</span>
-                </div>
-
-            </div>
-
-            <div class="country-more-note">
-
-                <h4>Что здесь появится дальше</h4>
-
-                <p>
-                    Полная страница страны:
-                    документы, визы, стоимость жизни,
-                    жильё, работа, учёба, безопасность,
-                    города, достопримечательности,
-                    полезные сайты и реальные особенности
-                    переезда.
-                </p>
-
-            </div>
-
-        </div>
-    `;
-
-    modal.classList.remove("hidden");
-}
-
-
-/* =========================================================
-   CALCULATOR
-========================================================= */
-
-const calculateButton =
-    document.getElementById("calculateButton");
-
-calculateButton.addEventListener("click", calculateBudget);
-
-function value(id) {
-
-    const element =
-        document.getElementById(id);
-
-    return Math.max(
-        0,
-        Number(element.value) || 0
-    );
-}
-
-function calculateBudget() {
-
-    const total =
-        value("ticket") +
-        value("housing") +
-        value("deposit") +
-        value("documents") +
-        value("insurance") +
-        value("food") +
-        value("transport") +
-        value("reserve");
-
-    const minimum =
-        Math.round(total * 0.75);
-
-    const realistic =
-        Math.round(total);
-
-    const comfortable =
-        Math.round(total * 1.35);
-
-    document.getElementById("minimumResult")
-        .textContent =
-        "$" + minimum.toLocaleString("en-US");
-
-    document.getElementById("realisticResult")
-        .textContent =
-        "$" + realistic.toLocaleString("en-US");
-
-    document.getElementById("comfortableResult")
-        .textContent =
-        "$" + comfortable.toLocaleString("en-US");
-}
-
-calculateBudget();
-
-
-/* =========================================================
-   TEST
-========================================================= */
-
-const questions = [
-
-    {
-        question:
-            "Что сильнее всего заставляет тебя думать о переезде?",
-
-        answers: [
-            "Хочу изменить образ жизни",
-            "Не чувствую себя комфортно там, где живу",
-            "Хочу учиться или работать за границей",
-            "Просто рассматриваю варианты"
-        ]
-    },
-
-    {
-        question:
-            "Есть ли у тебя финансовая подушка?",
-
-        answers: [
-            "Да, на несколько месяцев",
-            "Есть немного",
-            "Почти нет",
-            "Пока вообще нет"
-        ]
-    },
-
-    {
-        question:
-            "Готов ли ты изучать язык страны?",
-
-        answers: [
-            "Да, без проблем",
-            "Если понадобится",
-            "Не очень хочу",
-            "Только английский"
-        ]
-    },
-
-    {
-        question:
-            "Есть ли у тебя профессия или источник дохода?",
-
-        answers: [
-            "Да, стабильный",
-            "Есть навыки",
-            "Пока ищу себя",
-            "Нет"
-        ]
-    },
-
-    {
-        question:
-            "Насколько ты готов к бюрократии?",
-
-        answers: [
-            "Готов разбираться",
-            "Если будет понятная инструкция",
-            "Не люблю документы",
-            "Это меня пугает"
-        ]
-    },
-
-    {
-        question:
-            "Что для тебя важнее всего в новой стране?",
-
-        answers: [
-            "Безопасность",
-            "Деньги и работа",
-            "Климат и образ жизни",
-            "Учёба и развитие"
-        ]
-    },
-
-    {
-        question:
-            "Насколько ты уверен в решении?",
-
-        answers: [
-            "Хочу уехать как можно скорее",
-            "Скорее да",
-            "Пока сомневаюсь",
-            "Я вообще не уверен"
-        ]
-    }
-
-];
-
-let currentQuestion = 0;
-let testScore = 0;
-
-function renderQuestion() {
-
-    const question =
-        questions[currentQuestion];
-
-    document.getElementById("questionText")
-        .textContent = question.question;
-
-    document.getElementById("testProgress")
-        .textContent =
-        `Вопрос ${currentQuestion + 1} из ${questions.length}`;
-
-    document.getElementById("progressFill")
-        .style.width =
-        `${((currentQuestion + 1) / questions.length) * 100}%`;
-
-    const answers =
-        document.getElementById("answers");
-
-    answers.innerHTML =
-        question.answers.map(
-            (answer, index) => `
-
-                <button
-                    class="answer-button"
-                    data-answer="${index}"
-                >
-                    ${answer}
-                </button>
-
-            `
-        ).join("");
-
-    document
-        .querySelectorAll(".answer-button")
-        .forEach(button => {
-
-            button.addEventListener(
-                "click",
-                () => {
-
-                    testScore +=
-                        Number(button.dataset.answer);
-
-                    nextQuestion();
-                }
-            );
-
-        });
-}
-
-function nextQuestion() {
-
-    currentQuestion++;
-
-    if (currentQuestion >= questions.length) {
-
-        showTestResult();
-
-        return;
-    }
-
-    renderQuestion();
-}
-
-function showTestResult() {
-
-    document
-        .getElementById("questionContainer")
-        .classList.add("hidden");
-
-    document
-        .getElementById("testResult")
-        .classList.remove("hidden");
-
-    let title;
-    let text;
-
-    if (testScore <= 7) {
-
-        title = "Сначала подготовь почву";
-
-        text =
-            "Переезд может быть возможен, но сейчас лучше сначала разобраться с деньгами, документами и источником дохода.";
-
-    } else if (testScore <= 14) {
-
-        title = "Тебе стоит изучить варианты";
-
-        text =
-            "Похоже, у тебя уже есть некоторые основания рассматривать переезд. Не торопись — сначала сравни страны и условия.";
-
-    } else {
-
-        title = "У тебя есть сильная мотивация";
-
-        text =
-            "Похоже, ты достаточно серьёзно рассматриваешь переезд. Следующий шаг — выбрать направление и составить реальный план.";
-
-    }
-
-    document.getElementById("testResultTitle")
-        .textContent = title;
-
-    document.getElementById("testResultText")
-        .textContent = text;
-}
-
-document
-    .getElementById("restartTest")
-    .addEventListener("click", () => {
-
-        currentQuestion = 0;
-        testScore = 0;
-
-        document
-            .getElementById("testResult")
-            .classList.add("hidden");
-
-        document
-            .getElementById("questionContainer")
-            .classList.remove("hidden");
-
-        renderQuestion();
-    });
-
-renderQuestion();
-
-
-/* =========================================================
-   INFO MODALS
-========================================================= */
-
-const infoModal =
-    document.getElementById("infoModal");
-
-const modalText =
-    document.getElementById("modalText");
-
-const modalTitle =
-    document.getElementById("modalTitle");
-
-document
-    .querySelectorAll(".info-button")
-    .forEach(button => {
-
-        button.addEventListener("click", () => {
-
-            modalTitle.textContent =
-                "Что это значит?";
-
-            modalText.textContent =
-                button.dataset.info;
-
-            infoModal.classList.remove("hidden");
-        });
-
-    });
-
-document
-    .getElementById("closeModal")
-    .addEventListener("click", () => {
-
-        infoModal.classList.add("hidden");
-    });
-
-
-/* =========================================================
-   KNOWLEDGE MODALS
-========================================================= */
-
-const knowledgeData = {
-
-    documents: {
-        title: "Документы",
-        html: `
-            <div class="knowledge-modal-content">
-
-                <p>
-                    Документы зависят от страны, цели поездки
-                    и твоего статуса.
-                </p>
-
-                <h4>Основное</h4>
-
-                <ul>
-                    <li><strong>Паспорт</strong> — основной документ для поездки.</li>
-                    <li>Виза или другое основание для въезда.</li>
-                    <li>Подтверждение проживания.</li>
-                    <li>Финансовые документы — если их требует страна.</li>
-                    <li>Медицинские документы — если требуются.</li>
-                </ul>
-
-                <h4>Апостиль</h4>
-
-                <p>
-                    Апостиль — специальное подтверждение
-                    подлинности документа для использования
-                    в другой стране в случаях, когда между странами
-                    действует соответствующий порядок.
-                </p>
-
-                <h4>Доверенность</h4>
-
-                <p>
-                    Доверенность позволяет одному человеку
-                    официально действовать от имени другого
-                    в пределах предоставленных полномочий.
-                </p>
-
-                <p>
-                    Для конкретной страны всегда нужно проверять,
-                    нужна ли нотариальная форма, перевод,
-                    легализация или апостиль.
-                </p>
-
-            </div>
-        `
-    },
-
-    work: {
-        title: "Работа",
-        html: `
-            <div class="knowledge-modal-content">
-
-                <p>
-                    Работа за границей может быть локальной,
-                    удалённой, сезонной или связанной с учёбой.
-                </p>
-
-                <h4>Перед поиском</h4>
-
-                <ul>
-                    <li>Проверь право на работу.</li>
-                    <li>Подготовь CV.</li>
-                    <li>Определи нужный язык.</li>
-                    <li>Изучи местные сайты вакансий.</li>
-                </ul>
-
-            </div>
-        `
-    },
-
-    study: {
-        title: "Учёба",
-        html: `
-            <div class="knowledge-modal-content">
-
-                <p>
-                    Для поступления могут понадобиться
-                    документы об образовании, переводы
-                    и подтверждение их подлинности.
-                </p>
-
-                <h4>Что проверить</h4>
-
-                <ul>
-                    <li>Требования университета.</li>
-                    <li>Язык обучения.</li>
-                    <li>Признание предыдущего образования.</li>
-                    <li>Перевод документов.</li>
-                    <li>Финансовые требования.</li>
-                </ul>
-
-            </div>
-        `
-    },
-
-    housing: {
-        title: "Жильё",
-        html: `
-            <div class="knowledge-modal-content">
-
-                <p>
-                    Перед арендой важно проверить договор,
-                    депозит, коммунальные расходы и условия
-                    досрочного расторжения.
-                </p>
-
-            </div>
-        `
-    },
-
-    packing: {
-        title: "Что взять с собой",
-        html: `
-            <div class="knowledge-modal-content">
-
-                <h4>Не забудь проверить</h4>
-
-                <ul>
-                    <li>Паспорт и копии.</li>
-                    <li>Документы об образовании.</li>
-                    <li>Медицинские документы.</li>
-                    <li>Банковские документы.</li>
-                    <li>Телефон и зарядку.</li>
-                    <li>Необходимую одежду.</li>
-                </ul>
-
-            </div>
-        `
-    },
-
-    rules: {
-        title: "Можно и нельзя",
-        html: `
-            <div class="knowledge-modal-content">
-
-                <p>
-                    У каждой страны есть собственные
-                    правила ввоза вещей, лекарства,
-                    валюты и других предметов.
-                </p>
-
-                <h4>Непредвиденные ситуации</h4>
-
-                <p>
-                    Здесь мы постепенно соберём инструкции:
-                    потеря паспорта, проблемы на границе,
-                    потеря денег, медицинские ситуации,
-                    контакт с консульством и другие случаи.
-                </p>
-
-                <h4>Важно</h4>
-
-                <p>
-                    Конкретные запреты нужно проверять
-                    по официальным источникам страны.
-                </p>
-
-            </div>
-        `
-    }
-
-};
-
-document
-    .querySelectorAll(".knowledge-open")
-    .forEach(button => {
-
-        button.addEventListener("click", () => {
-
-            const data =
-                knowledgeData[button.dataset.knowledge];
-
-            document
-                .getElementById("knowledgeModalTitle")
-                .textContent = data.title;
-
-            document
-                .getElementById("knowledgeModalContent")
-                .innerHTML = data.html;
-
-            document
-                .getElementById("knowledgeModal")
-                .classList.remove("hidden");
-
-        });
-
-    });
-
-
-document
-    .getElementById("closeKnowledgeModal")
-    .addEventListener("click", () => {
-
-        document
-            .getElementById("knowledgeModal")
-            .classList.add("hidden");
-
-    });
-
-
-/* =========================================================
-   CLOSE MODALS BY OVERLAY
-========================================================= */
-
-document
-    .querySelectorAll(".modal-overlay")
-    .forEach(overlay => {
-
-        overlay.addEventListener("click", () => {
-
-            overlay
-                .closest(".modal")
-                .classList.add("hidden");
-
-        });
-
-    });
-
-
-/* =========================================================
-   CURRENCY
-========================================================= */
-
-const currencyFrom =
-    document.getElementById("currencyFrom");
-
-const currencyTo =
-    document.getElementById("currencyTo");
-
-const currencyAmount =
-    document.getElementById("currencyAmount");
-
-const currencyResult =
-    document.getElementById("currencyResult");
-
-const currencyDate =
-    document.getElementById("currencyDate");
-
-
-const currencyNames = {
-
-    USD: ["🇺🇸", "Доллар США", "$"],
-    EUR: ["🇪🇺", "Евро", "€"],
-    GBP: ["🇬🇧", "Фунт стерлингов", "£"],
-    JPY: ["🇯🇵", "Японская иена", "¥"],
-    CNY: ["🇨🇳", "Китайский юань", "¥"],
-    KRW: ["🇰🇷", "Южнокорейская вона", "₩"],
-    INR: ["🇮🇳", "Индийская рупия", "₹"],
-    AUD: ["🇦🇺", "Австралийский доллар", "A$"],
-    CAD: ["🇨🇦", "Канадский доллар", "C$"],
-    NZD: ["🇳🇿", "Новозеландский доллар", "NZ$"],
-    SGD: ["🇸🇬", "Сингапурский доллар", "S$"],
-    HKD: ["🇭🇰", "Гонконгский доллар", "HK$"],
-    CHF: ["🇨🇭", "Швейцарский франк", "CHF"],
-    NOK: ["🇳🇴", "Норвежская крона", "kr"],
-    SEK: ["🇸🇪", "Шведская крона", "kr"],
-    DKK: ["🇩🇰", "Датская крона", "kr"],
-    PLN: ["🇵🇱", "Польский злотый", "zł"],
-    CZK: ["🇨🇿", "Чешская крона", "Kč"],
-    HUF: ["🇭🇺", "Венгерский форинт", "Ft"],
-    RON: ["🇷🇴", "Румынский лей", "lei"],
-    BGN: ["🇧🇬", "Болгарский лев", "лв"],
-    RSD: ["🇷🇸", "Сербский динар", "дин"],
-    TRY: ["🇹🇷", "Турецкая лира", "₺"],
-    GEL: ["🇬🇪", "Грузинский лари", "₾"],
-    AMD: ["🇦🇲", "Армянский драм", "֏"],
-    AZN: ["🇦🇿", "Азербайджанский манат", "₼"],
-    KZT: ["🇰🇿", "Казахстанский тенге", "₸"],
-    UZS: ["🇺🇿", "Узбекский сум", "сўм"],
-    THB: ["🇹🇭", "Тайский бат", "฿"],
-    VND: ["🇻🇳", "Вьетнамский донг", "₫"],
-    IDR: ["🇮🇩", "Индонезийская рупия", "Rp"],
-    MYR: ["🇲🇾", "Малайзийский ринггит", "RM"],
-    PHP: ["🇵🇭", "Филиппинское песо", "₱"],
-    MXN: ["🇲🇽", "Мексиканское песо", "$"],
-    BRL: ["🇧🇷", "Бразильский реал", "R$"],
-    ARS: ["🇦🇷", "Аргентинское песо", "$"],
-    CLP: ["🇨🇱", "Чилийское песо", "$"],
-    COP: ["🇨🇴", "Колумбийское песо", "$"],
-    UAH: ["🇺🇦", "Украинская гривна", "₴"],
-    ISK: ["🇮🇸", "Исландская крона", "kr"],
-    ZAR: ["🇿🇦", "Южноафриканский рэнд", "R"],
-    MAD: ["🇲🇦", "Марокканский дирхам", "د.م."],
-    EGP: ["🇪🇬", "Египетский фунт", "£"],
-    AED: ["🇦🇪", "Дирхам ОАЭ", "د.إ"],
-    SAR: ["🇸🇦", "Саудовский риял", "﷼"],
-    ILS: ["🇮🇱", "Новый израильский шекель", "₪"],
-    BRL: ["🇧🇷", "Бразильский реал", "R$"],
-    USD: ["🇺🇸", "Доллар США", "$"],
-    EUR: ["🇪🇺", "Евро", "€"]
-};
-
-
-/*
-    Frankfurter поддерживает собственный список валют.
-    Получаем его автоматически.
-*/
-
-async function loadCurrencies() {
-
-    try {
-
-        const response =
-            await fetch(
-                "https://api.frankfurter.dev/v2/currencies"
-            );
-
-        if (!response.ok) {
-            throw new Error("Currency API error");
-        }
-
-        const data =
-            await response.json();
-
-        const currencies =
-            Object.keys(data).sort();
-
-        populateCurrencySelects(currencies);
-
-    } catch (error) {
-
-        console.error(error);
-
-        /*
-            Резервный список,
-            если внешний API временно недоступен.
-        */
-
-        populateCurrencySelects(
-            Object.keys(currencyNames)
-        );
-    }
-}
-
-
-function populateCurrencySelects(currencies) {
-
-    const options =
-        currencies.map(code => {
-
-            const info =
-                currencyNames[code];
-
-            if (info) {
-
-                return `
-                    <option value="${code}">
-                        ${info[0]} ${info[1]} (${code})
-                    </option>
-                `;
-
+            this.mobileMenuBtn?.addEventListener("click", () => {
+                this.nav.classList.toggle("open");
+            });
+
+            document.getElementById("countryBack")?.addEventListener("click", () => {
+                this.showPage("countries");
+            });
+
+            document.getElementById("articleBack")?.addEventListener("click", () => {
+                this.showPage("knowledge");
+            });
+
+            window.addEventListener("hashchange", () => {
+                this.handleInitialPage();
+            });
+        },
+
+        showPage(page) {
+
+            if (page === "country-detail" || page === "article") {
+                // handled separately
             }
 
-            return `
-                <option value="${code}">
-                    🌐 ${code}
-                </option>
+            const target = document.getElementById(`page-${page}`);
+
+            if (!target) return;
+
+            this.pages.forEach(p => {
+                p.classList.remove("active-page");
+            });
+
+            target.classList.add("active-page");
+
+            document.querySelectorAll(".nav-link").forEach(link => {
+                link.classList.toggle(
+                    "active",
+                    link.dataset.page === page
+                );
+            });
+
+            this.currentPage = page;
+
+            this.nav?.classList.remove("open");
+
+            window.scrollTo({
+                top: 0,
+                behavior: "smooth"
+            });
+
+            if (page !== "home") {
+                history.replaceState(null, "", `#${page}`);
+            } else {
+                history.replaceState(null, "", "#");
+            }
+
+            setTimeout(() => {
+                if (window.initRevealAnimations) {
+                    window.initRevealAnimations();
+                }
+            }, 80);
+        },
+
+
+        /* COUNTRIES */
+
+        renderContinents() {
+
+            const container = document.getElementById("continentTabs");
+
+            if (!container) return;
+
+            container.innerHTML = `
+                <button
+                    class="continent-tab active"
+                    data-continent="all"
+                >
+                    Все
+                </button>
             `;
 
-        }).join("");
+            continents.forEach(continent => {
 
-    currencyFrom.innerHTML = options;
-    currencyTo.innerHTML = options;
+                const button = document.createElement("button");
 
-    currencyFrom.value = "USD";
-    currencyTo.value = "EUR";
-}
+                button.className = "continent-tab";
+                button.dataset.continent = continent;
+                button.textContent = continent;
+
+                container.appendChild(button);
+
+            });
+
+            container.addEventListener("click", event => {
+
+                const button = event.target.closest(".continent-tab");
+
+                if (!button) return;
+
+                this.continent = button.dataset.continent;
+
+                container.querySelectorAll(".continent-tab")
+                    .forEach(item => item.classList.remove("active"));
+
+                button.classList.add("active");
+
+                this.renderCountries();
+
+            });
+
+            const search = document.getElementById("countrySearch");
+
+            search?.addEventListener("input", event => {
+
+                this.search = event.target.value
+                    .trim()
+                    .toLowerCase();
+
+                this.renderCountries();
+
+            });
+        },
 
 
-async function convertCurrency() {
+        getFilteredCountries() {
 
-    const amount =
-        Number(currencyAmount.value);
+            return countries.filter(country => {
 
-    const from =
-        currencyFrom.value;
+                const matchesContinent =
+                    this.continent === "all" ||
+                    country.continent === this.continent;
 
-    const to =
-        currencyTo.value;
+                const searchText = `
+                    ${country.name}
+                    ${country.region}
+                    ${country.continent}
+                `.toLowerCase();
 
-    if (!amount || amount < 0) {
+                const matchesSearch =
+                    !this.search ||
+                    searchText.includes(this.search);
 
-        currencyResult.textContent =
-            "Введите корректную сумму.";
+                return matchesContinent && matchesSearch;
+            });
 
-        return;
-    }
+        },
 
-    if (from === to) {
 
-        currencyResult.textContent =
-            `${amount.toLocaleString()} ${from} = ${amount.toLocaleString()} ${to}`;
+        renderCountries() {
 
-        currencyDate.textContent =
-            "Одинаковая валюта.";
+            const container = document.getElementById("countriesGrid");
 
-        return;
-    }
+            if (!container) return;
 
-    currencyResult.textContent =
-        "Получаем актуальный курс...";
+            const filtered = this.getFilteredCountries();
 
-    currencyDate.textContent = "";
+            if (!filtered.length) {
 
-    try {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <h3>Ничего не найдено</h3>
+                        <p>Попробуй изменить запрос или регион.</p>
+                    </div>
+                `;
 
-        const response =
-            await fetch(
-                `https://api.frankfurter.dev/v2/rate/${from}/${to}`
+                return;
+            }
+
+            container.innerHTML = filtered.map(country =>
+                this.countryCardHTML(country)
+            ).join("");
+
+            container.querySelectorAll(".country-card")
+                .forEach(card => {
+
+                    card.addEventListener("click", () => {
+
+                        const country = countries.find(
+                            item => item.id === card.dataset.country
+                        );
+
+                        if (country) {
+                            this.openCountry(country);
+                        }
+
+                    });
+
+                });
+
+            if (window.initRevealAnimations) {
+                window.initRevealAnimations();
+            }
+        },
+
+
+        countryCardHTML(country) {
+
+            return `
+                <article
+                    class="country-card reveal"
+                    data-country="${country.id}"
+                >
+
+                    <div class="country-flag">
+                        ${country.flag}
+                    </div>
+
+                    <div class="country-region">
+                        ${country.region}
+                    </div>
+
+                    <h3>${country.name}</h3>
+
+                    <p>${country.description}</p>
+
+                    <div class="country-arrow">↗</div>
+
+                </article>
+            `;
+        },
+
+
+        renderFeatured() {
+
+            const container =
+                document.getElementById("featuredCountries");
+
+            if (!container) return;
+
+            const featured = countries.slice(0, 6);
+
+            container.innerHTML = featured
+                .map(country => this.countryCardHTML(country))
+                .join("");
+
+            container.querySelectorAll(".country-card")
+                .forEach(card => {
+
+                    card.addEventListener("click", () => {
+
+                        const country = countries.find(
+                            item => item.id === card.dataset.country
+                        );
+
+                        this.openCountry(country);
+
+                    });
+
+                });
+        },
+
+
+        openCountry(country) {
+
+            if (!country) return;
+
+            this.currentCountry = country;
+
+            const page = document.getElementById("page-country-detail");
+
+            this.pages.forEach(p => {
+                p.classList.remove("active-page");
+            });
+
+            page.classList.add("active-page");
+
+            document.querySelectorAll(".nav-link")
+                .forEach(link => link.classList.remove("active"));
+
+            history.replaceState(
+                null,
+                "",
+                `#country/${country.id}`
             );
 
-        if (!response.ok) {
-            throw new Error("Conversion failed");
+            const container =
+                document.getElementById("countryDetail");
+
+            container.innerHTML = `
+
+                <div class="country-detail-hero">
+
+                    <div class="country-detail-main reveal">
+
+                        <div class="country-detail-flag">
+                            ${country.flag}
+                        </div>
+
+                        <div class="country-region">
+                            ${country.continent} · ${country.region}
+                        </div>
+
+                        <h1>${country.name}</h1>
+
+                        <p>
+                            ${country.description}
+                        </p>
+
+                    </div>
+
+                    <aside class="country-detail-side reveal">
+
+                        <h3>Коротко</h3>
+
+                        <div class="info-row">
+                            <span>Валюта</span>
+                            <strong>
+                                ${country.currency}
+                            </strong>
+                        </div>
+
+                        <div class="info-row">
+                            <span>Язык</span>
+                            <strong>
+                                ${country.language}
+                            </strong>
+                        </div>
+
+                        <div class="info-row">
+                            <span>Виза</span>
+                            <strong>
+                                ${country.visa}
+                            </strong>
+                        </div>
+
+                        <div class="info-row">
+                            <span>Ориентир / месяц</span>
+                            <strong>
+                                ~$${country.monthly}
+                            </strong>
+                        </div>
+
+                    </aside>
+
+                </div>
+
+                <div class="country-topics">
+
+                    ${this.topicHTML(country, "documents", "Документы", "Подготовка документов")}
+
+                    ${this.topicHTML(country, "visa", "Визы", "Условия въезда и пребывания")}
+
+                    ${this.topicHTML(country, "residence", "ВНЖ", "Долгосрочное проживание")}
+
+                    ${this.topicHTML(country, "work", "Работа", "Трудоустройство")}
+
+                    ${this.topicHTML(country, "study", "Учёба", "Образование")}
+
+                    ${this.topicHTML(country, "housing", "Жильё", "Аренда и районы")}
+
+                    ${this.topicHTML(country, "medicine", "Медицина", "Клиники и страхование")}
+
+                    ${this.topicHTML(country, "transport", "Транспорт", "Перемещение по стране")}
+
+                    ${this.topicHTML(country, "internet", "Интернет", "Связь и SIM-карты")}
+
+                </div>
+            `;
+
+            container.querySelectorAll(".topic-card")
+                .forEach(card => {
+
+                    card.addEventListener("click", () => {
+
+                        const key = card.dataset.topic;
+
+                        this.showTopicInfo(
+                            country,
+                            key
+                        );
+
+                    });
+
+                });
+
+            window.scrollTo({
+                top: 0,
+                behavior: "smooth"
+            });
+
+            setTimeout(() => {
+                window.initRevealAnimations?.();
+            }, 50);
+        },
+
+
+        topicHTML(country, key, title, description) {
+
+            return `
+                <article
+                    class="topic-card reveal"
+                    data-topic="${key}"
+                >
+
+                    <span>${this.topicIcon(key)}</span>
+
+                    <strong>${title}</strong>
+
+                    <p>${description}</p>
+
+                </article>
+            `;
+        },
+
+
+        topicIcon(key) {
+
+            const icons = {
+                documents: "▤",
+                visa: "◎",
+                residence: "⌂",
+                work: "▣",
+                study: "◇",
+                housing: "⌂",
+                medicine: "＋",
+                transport: "→",
+                internet: "⌁"
+            };
+
+            return icons[key] || "•";
+        },
+
+
+        showTopicInfo(country, key) {
+
+            const titleMap = {
+                documents: "Документы",
+                visa: "Визы",
+                residence: "ВНЖ",
+                work: "Работа",
+                study: "Учёба",
+                housing: "Жильё",
+                medicine: "Медицина",
+                transport: "Транспорт",
+                internet: "Интернет"
+            };
+
+            const text =
+                country.topics[key] ||
+                "Информация пока готовится.";
+
+            const article = document.getElementById("articleContent");
+
+            this.pages.forEach(p => {
+                p.classList.remove("active-page");
+            });
+
+            document.getElementById("page-article")
+                .classList.add("active-page");
+
+            article.innerHTML = `
+
+                <header class="article-header">
+
+                    <span class="section-kicker">
+                        ${country.flag} ${country.name}
+                    </span>
+
+                    <h1>${titleMap[key]}</h1>
+
+                    <p>
+                        Информация по направлению
+                        «${titleMap[key].toLowerCase()}»
+                        для ${country.name}.
+                    </p>
+
+                </header>
+
+                <div class="article-body">
+
+                    <p>
+                        ${text}
+                    </p>
+
+                    <h2>Что важно проверить</h2>
+
+                    <p>
+                        Требования могут меняться в зависимости
+                        от гражданства, цели пребывания,
+                        срока поездки и конкретной процедуры.
+                    </p>
+
+                    <p>
+                        Перед подачей документов всегда
+                        сверяй актуальные условия с официальными
+                        источниками соответствующей страны.
+                    </p>
+
+                </div>
+            `;
+
+            window.scrollTo({
+                top: 0,
+                behavior: "smooth"
+            });
+        },
+
+
+        /* KNOWLEDGE */
+
+        renderKnowledge() {
+
+            const container =
+                document.getElementById("knowledgeGrid");
+
+            if (!container) return;
+
+            container.innerHTML =
+                knowledgeCategories.map(category => `
+
+                    <article
+                        class="knowledge-card reveal"
+                        data-knowledge="${category.id}"
+                    >
+
+                        <div class="knowledge-icon">
+                            ${category.icon}
+                        </div>
+
+                        <h3>${category.title}</h3>
+
+                        <p>${category.description}</p>
+
+                    </article>
+
+                `).join("");
+
+            container.querySelectorAll(".knowledge-card")
+                .forEach(card => {
+
+                    card.addEventListener("click", () => {
+
+                        const category =
+                            knowledgeCategories.find(
+                                item =>
+                                    item.id === card.dataset.knowledge
+                            );
+
+                        if (category) {
+                            this.openArticle(category);
+                        }
+
+                    });
+
+                });
+        },
+
+
+        openArticle(category) {
+
+            this.currentArticle = category;
+
+            const article =
+                document.getElementById("articleContent");
+
+            this.pages.forEach(p => {
+                p.classList.remove("active-page");
+            });
+
+            document.getElementById("page-article")
+                .classList.add("active-page");
+
+            article.innerHTML = `
+
+                <header class="article-header">
+
+                    <span class="section-kicker">
+                        БАЗА ЗНАНИЙ
+                    </span>
+
+                    <h1>${category.article.title}</h1>
+
+                    <p>
+                        ${category.article.intro}
+                    </p>
+
+                </header>
+
+                <div class="article-body">
+
+                    ${category.article.sections.map(section => `
+
+                        <h2>${section.title}</h2>
+
+                        <p>${section.text}</p>
+
+                    `).join("")}
+
+                </div>
+            `;
+
+            window.scrollTo({
+                top: 0,
+                behavior: "smooth"
+            });
+        },
+
+
+        /* CALCULATOR */
+
+        initCalculator() {
+
+            const select =
+                document.getElementById("calcCountry");
+
+            if (!select) return;
+
+            select.innerHTML += countries.map(country => `
+                <option value="${country.id}">
+                    ${country.flag} ${country.name}
+                </option>
+            `).join("");
+
+            document
+                .getElementById("calculateBtn")
+                ?.addEventListener("click", () => {
+                    this.calculateMove();
+                });
+        },
+
+
+        calculateMove() {
+
+            const countryId =
+                document.getElementById("calcCountry").value;
+
+            const people =
+                Number(document.getElementById("calcPeople").value) || 1;
+
+            const months =
+                Number(document.getElementById("calcMonths").value) || 3;
+
+            const country =
+                countries.find(item => item.id === countryId);
+
+            if (!country) {
+
+                this.renderCalculatorMessage(
+                    "Сначала выбери страну."
+                );
+
+                return;
+            }
+
+            const visa =
+                document.getElementById("calcVisa").checked
+                    ? 250
+                    : 0;
+
+            const flight =
+                document.getElementById("calcFlight").checked
+                    ? 450 * people
+                    : 0;
+
+            const housing =
+                document.getElementById("calcHousing").checked
+                    ? country.monthly
+                    : 0;
+
+            const deposit =
+                document.getElementById("calcDeposit").checked
+                    ? country.monthly
+                    : 0;
+
+            const living =
+                country.monthly *
+                months *
+                people;
+
+            const total =
+                visa +
+                flight +
+                housing +
+                deposit +
+                living;
+
+            const result =
+                document.getElementById("calculatorResult");
+
+            result.innerHTML = `
+
+                <div class="result-top">
+
+                    <small>
+                        ОРИЕНТИРОВОЧНЫЙ СТАРТОВЫЙ БЮДЖЕТ
+                    </small>
+
+                    <div class="result-price">
+                        $${Math.round(total).toLocaleString("ru-RU")}
+                        <span class="result-currency">USD</span>
+                    </div>
+
+                    <p style="
+                        color:var(--text-soft);
+                        font-size:11px;
+                        margin-top:8px;
+                    ">
+                        ${country.flag} ${country.name}
+                        · ${people} чел.
+                        · ${months} мес.
+                    </p>
+
+                </div>
+
+                <div class="result-breakdown">
+
+                    <div class="breakdown-row">
+                        <span>Проживание</span>
+                        <strong>
+                            $${Math.round(living).toLocaleString("ru-RU")}
+                        </strong>
+                    </div>
+
+                    <div class="breakdown-row">
+                        <span>Документы / виза</span>
+                        <strong>
+                            $${visa.toLocaleString("ru-RU")}
+                        </strong>
+                    </div>
+
+                    <div class="breakdown-row">
+                        <span>Перелёт</span>
+                        <strong>
+                            $${flight.toLocaleString("ru-RU")}
+                        </strong>
+                    </div>
+
+                    <div class="breakdown-row">
+                        <span>Первое жильё</span>
+                        <strong>
+                            $${housing.toLocaleString("ru-RU")}
+                        </strong>
+                    </div>
+
+                    <div class="breakdown-row">
+                        <span>Депозит</span>
+                        <strong>
+                            $${deposit.toLocaleString("ru-RU")}
+                        </strong>
+                    </div>
+
+                </div>
+
+                <div class="converter-note" style="margin-top:20px;">
+                    ⓘ Расчёт ориентировочный и нужен для
+                    первичной оценки бюджета.
+                </div>
+            `;
+        },
+
+
+        renderCalculatorMessage(message) {
+
+            const result =
+                document.getElementById("calculatorResult");
+
+            result.innerHTML = `
+
+                <div class="result-empty">
+
+                    <span class="result-icon">ⓘ</span>
+
+                    <h3>${message}</h3>
+
+                    <p>
+                        Выбери параметры слева,
+                        чтобы получить расчёт.
+                    </p>
+
+                </div>
+            `;
+        },
+
+
+        /* CONVERTER */
+
+        initConverter() {
+
+            const currencies = [
+                ["RUB", "🇷🇺 RUB"],
+                ["USD", "🇺🇸 USD"],
+                ["EUR", "🇪🇺 EUR"],
+                ["GBP", "🇬🇧 GBP"],
+                ["KZT", "🇰🇿 KZT"],
+                ["GEL", "🇬🇪 GEL"],
+                ["TRY", "🇹🇷 TRY"],
+                ["THB", "🇹🇭 THB"],
+                ["VND", "🇻🇳 VND"],
+                ["IDR", "🇮🇩 IDR"],
+                ["CAD", "🇨🇦 CAD"]
+            ];
+
+            const from =
+                document.getElementById("currencyFrom");
+
+            const to =
+                document.getElementById("currencyTo");
+
+            if (!from || !to) return;
+
+            const options = currencies.map(currency => `
+                <option value="${currency[0]}">
+                    ${currency[1]}
+                </option>
+            `).join("");
+
+            from.innerHTML = options;
+            to.innerHTML = options;
+
+            from.value = "USD";
+            to.value = "EUR";
+
+            const update = () => this.convertCurrency();
+
+            document
+                .getElementById("currencyAmount")
+                ?.addEventListener("input", update);
+
+            from.addEventListener("change", update);
+            to.addEventListener("change", update);
+
+            document
+                .getElementById("swapCurrencies")
+                ?.addEventListener("click", () => {
+
+                    const temp = from.value;
+
+                    from.value = to.value;
+                    to.value = temp;
+
+                    update();
+                });
+
+            update();
+        },
+
+
+        convertCurrency() {
+
+            const rates = {
+
+                USD: {
+                    USD: 1,
+                    EUR: .92,
+                    GBP: .79,
+                    RUB: 80,
+                    KZT: 480,
+                    GEL: 2.7,
+                    TRY: 40,
+                    THB: 32,
+                    VND: 25000,
+                    IDR: 16000,
+                    CAD: 1.37
+                },
+
+                EUR: {
+                    USD: 1.09,
+                    EUR: 1,
+                    GBP: .86,
+                    RUB: 87,
+                    KZT: 520,
+                    GEL: 2.95,
+                    TRY: 43,
+                    THB: 35,
+                    VND: 27200,
+                    IDR: 17400,
+                    CAD: 1.49
+                },
+
+                RUB: {
+                    RUB: 1,
+                    USD: .0125,
+                    EUR: .0115,
+                    GBP: .0099,
+                    KZT: 6,
+                    GEL: .034,
+                    TRY: .5,
+                    THB: .4,
+                    VND: 310,
+                    IDR: 200,
+                    CAD: .017
+                }
+
+            };
+
+            const amount =
+                Number(
+                    document.getElementById("currencyAmount").value
+                ) || 0;
+
+            const from =
+                document.getElementById("currencyFrom").value;
+
+            const to =
+                document.getElementById("currencyTo").value;
+
+            let rate;
+
+            if (rates[from]?.[to]) {
+                rate = rates[from][to];
+            } else if (rates[to]?.[from]) {
+                rate = 1 / rates[to][from];
+            } else {
+                rate = 1;
+            }
+
+            const result = amount * rate;
+
+            document.getElementById("currencyResult").value =
+                result.toLocaleString("ru-RU", {
+                    maximumFractionDigits: 2
+                });
+
+            document.getElementById("exchangeInfo").textContent =
+                `1 ${from} ≈ ${rate.toLocaleString("ru-RU", {
+                    maximumFractionDigits: 4
+                })} ${to}`;
+        },
+
+
+        /* TOOLTIPS */
+
+        initTooltip() {
+
+            const tooltip =
+                document.getElementById("tooltip");
+
+            document.addEventListener("click", event => {
+
+                const info =
+                    event.target.closest("[data-info]");
+
+                if (!info) {
+
+                    tooltip.classList.remove("visible");
+
+                    return;
+                }
+
+                tooltip.textContent =
+                    info.dataset.info;
+
+                tooltip.classList.add("visible");
+
+                const rect =
+                    info.getBoundingClientRect();
+
+                tooltip.style.left =
+                    `${Math.min(
+                        window.innerWidth - 300,
+                        Math.max(10, rect.left)
+                    )}px`;
+
+                tooltip.style.top =
+                    `${rect.bottom + 10}px`;
+            });
         }
 
-        const data =
-            await response.json();
+    };
 
-        const result =
-            amount * data.rate;
+    window.app = app;
 
-        currencyResult.textContent =
-            `${formatNumber(amount)} ${from} = ${formatNumber(result)} ${to}`;
+    app.init();
 
-        currencyDate.textContent =
-            `Курс: 1 ${from} = ${formatNumber(data.rate)} ${to} · дата курса: ${data.date}`;
-
-    } catch (error) {
-
-        console.error(error);
-
-        currencyResult.textContent =
-            "Не удалось получить курс. Попробуйте ещё раз.";
-
-        currencyDate.textContent =
-            "Источник курса временно недоступен.";
-    }
-}
-
-
-function formatNumber(number) {
-
-    return Number(number).toLocaleString(
-        "ru-RU",
-        {
-            maximumFractionDigits: 4
-        }
-    );
-}
-
-
-document
-    .getElementById("convertButton")
-    .addEventListener(
-        "click",
-        convertCurrency
-    );
-
-
-loadCurrencies();
-
-
-/* =========================================================
-   INITIAL SETTINGS
-========================================================= */
-
-document
-    .getElementById("currencyFrom")
-    .value = "USD";
+});
