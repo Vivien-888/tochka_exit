@@ -1,358 +1,171 @@
-(function () {
-
-    "use strict";
-
-
-    /*
-     * АНИМАЦИИ ТОЧКИ ВЫХОДА
-     *
-     * Здесь намеренно нет тяжёлых библиотек.
-     * Всё работает на CSS + IntersectionObserver.
-     */
+/* =========================================================
+   ТОЧКА ВЫХОДА — ANIMATIONS
+   Не меняет цветовую систему сайта.
+========================================================= */
 
 
-    /* REVEAL */
+/* Плавное появление элементов */
 
-    function initRevealAnimations() {
-
-        const elements =
-            document.querySelectorAll(
-                ".reveal:not(.reveal-ready)"
-            );
-
-        if (!elements.length) return;
-
-        elements.forEach(element => {
-            element.classList.add("reveal-ready");
-        });
-
-        if (!("IntersectionObserver" in window)) {
-
-            elements.forEach(element => {
-                element.classList.add("visible");
-            });
-
-            return;
-        }
-
-        const observer =
-            new IntersectionObserver(
-                entries => {
-
-                    entries.forEach(entry => {
-
-                        if (!entry.isIntersecting) return;
-
-                        entry.target.classList.add("visible");
-
-                        observer.unobserve(entry.target);
-
-                    });
-
-                },
-                {
-                    threshold: .08,
-                    rootMargin: "0px 0px -30px 0px"
-                }
-            );
-
-        elements.forEach(element => {
-            observer.observe(element);
-        });
+@keyframes fadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(24px);
     }
 
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
 
-    /* HEADER */
 
-    function initHeaderAnimation() {
+/* Мягкое появление справа */
 
-        const header =
-            document.getElementById("header");
-
-        if (!header) return;
-
-        const updateHeader = () => {
-
-            if (window.scrollY > 20) {
-                header.classList.add("scrolled");
-            } else {
-                header.classList.remove("scrolled");
-            }
-
-        };
-
-        window.addEventListener(
-            "scroll",
-            updateHeader,
-            { passive: true }
-        );
-
-        updateHeader();
+@keyframes fadeRight {
+    from {
+        opacity: 0;
+        transform: translateX(24px);
     }
 
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
 
-    /* MOUSE PARALLAX */
 
-    function initHeroParallax() {
+/* Плавное движение свечения */
 
-        const hero =
-            document.querySelector(".hero");
-
-        const visual =
-            document.querySelector(".hero-visual");
-
-        if (!hero || !visual) return;
-
-        if (window.matchMedia("(pointer: coarse)").matches) {
-            return;
-        }
-
-        hero.addEventListener("mousemove", event => {
-
-            const rect =
-                hero.getBoundingClientRect();
-
-            const x =
-                (event.clientX - rect.left) /
-                rect.width -
-                .5;
-
-            const y =
-                (event.clientY - rect.top) /
-                rect.height -
-                .5;
-
-            visual.style.transform =
-                `translate(${x * 8}px, ${y * 8}px)`;
-        });
-
-        hero.addEventListener("mouseleave", () => {
-
-            visual.style.transform =
-                "translate(0,0)";
-        });
+@keyframes floatGlow {
+    0%,
+    100% {
+        transform: translate3d(0, 0, 0);
     }
 
+    50% {
+        transform: translate3d(0, 18px, 0);
+    }
+}
 
-    /* TILT FOR CARDS */
 
-    function initCardTilt() {
+/* Мягкое свечение точки */
 
-        if (window.matchMedia("(pointer: coarse)").matches) {
-            return;
-        }
-
-        document.addEventListener("mousemove", event => {
-
-            const card =
-                event.target.closest(
-                    ".quick-card, .country-card, .knowledge-card"
-                );
-
-            if (!card) return;
-
-            const rect =
-                card.getBoundingClientRect();
-
-            if (
-                event.clientX < rect.left ||
-                event.clientX > rect.right ||
-                event.clientY < rect.top ||
-                event.clientY > rect.bottom
-            ) {
-                return;
-            }
-
-            const x =
-                (event.clientX - rect.left) /
-                rect.width -
-                .5;
-
-            const y =
-                (event.clientY - rect.top) /
-                rect.height -
-                .5;
-
-            card.style.transform =
-                `perspective(700px)
-                 rotateX(${y * -2}deg)
-                 rotateY(${x * 2}deg)
-                 translateY(-5px)`;
-        });
-
-        document.addEventListener("mouseleave", event => {
-
-            const card =
-                event.target.closest(
-                    ".quick-card, .country-card, .knowledge-card"
-                );
-
-            if (!card) return;
-
-            card.style.transform = "";
-        }, true);
+@keyframes livePulse {
+    0%,
+    100% {
+        transform: scale(1);
+        opacity: 1;
     }
 
+    50% {
+        transform: scale(1.45);
+        opacity: .55;
+    }
+}
 
-    /* MAGNETIC BUTTON */
 
-    function initMagneticButtons() {
+/* Hero */
 
-        if (window.matchMedia("(pointer: coarse)").matches) {
-            return;
-        }
+.hero-content {
+    animation: fadeUp .75s ease both;
+}
 
-        document.addEventListener("mousemove", event => {
+.hero-card {
+    animation: fadeRight .85s ease .08s both;
+}
 
-            const button =
-                event.target.closest(".btn-primary");
+.hero-glow-one {
+    animation: floatGlow 8s ease-in-out infinite;
+}
 
-            if (!button) return;
+.hero-glow-two {
+    animation: floatGlow 10s ease-in-out infinite reverse;
+}
 
-            const rect =
-                button.getBoundingClientRect();
+.live-dot {
+    animation: livePulse 2.2s ease-in-out infinite;
+}
 
-            const x =
-                event.clientX - rect.left - rect.width / 2;
 
-            const y =
-                event.clientY - rect.top - rect.height / 2;
+/* Карточки */
 
-            const distance =
-                Math.sqrt(x * x + y * y);
+.tool-card,
+.country-card,
+.knowledge-card,
+.calculator-form,
+.calculator-result,
+.test-box,
+.currency-box,
+.support-box {
+    will-change: transform;
+}
 
-            if (distance > 90) {
 
-                button.style.transform = "";
+/* Более мягкое нажатие */
 
-                return;
-            }
+.btn:active,
+.tool-card:active,
+.country-open:active,
+.answer-button:active {
+    transform: scale(.985);
+}
 
-            button.style.transform =
-                `translate(${x * .04}px, ${y * .04}px)`;
-        });
 
-        document.addEventListener("mouseleave", event => {
+/* Модальное окно */
 
-            const button =
-                event.target.closest(".btn-primary");
-
-            if (button) {
-                button.style.transform = "";
-            }
-
-        }, true);
+@keyframes modalIn {
+    from {
+        opacity: 0;
+        transform: translateY(18px) scale(.97);
     }
 
-
-    /* SCROLL PROGRESS */
-
-    function initScrollProgress() {
-
-        const progress =
-            document.createElement("div");
-
-        progress.className =
-            "scroll-progress";
-
-        progress.style.cssText = `
-            position:fixed;
-            top:0;
-            left:0;
-            width:0;
-            height:2px;
-            background:#477c65;
-            z-index:3000;
-            pointer-events:none;
-            transition:width .08s linear;
-        `;
-
-        document.body.appendChild(progress);
-
-        window.addEventListener(
-            "scroll",
-            () => {
-
-                const scrollTop =
-                    window.scrollY;
-
-                const height =
-                    document.documentElement.scrollHeight -
-                    window.innerHeight;
-
-                const percent =
-                    height > 0
-                        ? (scrollTop / height) * 100
-                        : 0;
-
-                progress.style.width =
-                    `${percent}%`;
-
-            },
-            { passive: true }
-        );
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
     }
+}
+
+.modal:not(.hidden) .modal-card {
+    animation: modalIn .25s ease both;
+}
 
 
-    /* REDUCE MOTION */
+/* Появление ответа теста */
 
-    function respectReducedMotion() {
+.answer-button {
+    animation: fadeUp .35s ease both;
+}
 
-        const reduced =
-            window.matchMedia(
-                "(prefers-reduced-motion: reduce)"
-            ).matches;
+.answer-button:nth-child(2) {
+    animation-delay: .04s;
+}
 
-        if (!reduced) return;
+.answer-button:nth-child(3) {
+    animation-delay: .08s;
+}
 
-        const style =
-            document.createElement("style");
+.answer-button:nth-child(4) {
+    animation-delay: .12s;
+}
 
-        style.textContent = `
-            *,
-            *::before,
-            *::after {
-                animation-duration: .01ms !important;
-                animation-iteration-count: 1 !important;
-                transition-duration: .01ms !important;
-                scroll-behavior: auto !important;
-            }
-        `;
 
-        document.head.appendChild(style);
+/* Страны */
+
+.country-card {
+    animation: fadeUp .45s ease both;
+}
+
+
+/* Уважение к системной настройке пользователя */
+
+@media (prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .01ms !important;
+        scroll-behavior: auto !important;
     }
-
-
-    /* INITIALIZE */
-
-    function initAll() {
-
-        respectReducedMotion();
-
-        initHeaderAnimation();
-        initHeroParallax();
-        initCardTilt();
-        initMagneticButtons();
-        initScrollProgress();
-
-        initRevealAnimations();
-
-        window.initRevealAnimations =
-            initRevealAnimations;
-    }
-
-
-    if (document.readyState === "loading") {
-
-        document.addEventListener(
-            "DOMContentLoaded",
-            initAll
-        );
-
-    } else {
-
-        initAll();
-
-    }
-
-})();
+}
