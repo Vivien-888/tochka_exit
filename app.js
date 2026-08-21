@@ -1,1031 +1,1384 @@
-document.addEventListener("DOMContentLoaded", () => {
+/*
+    ==========================================
+    МОБИЛЬНОЕ МЕНЮ
+    ==========================================
+    */
 
-    const app = {
-        currentPage: "home",
-        currentCountry: null,
-        currentArticle: null,
-        continent: "all",
-        search: "",
+    const mobileMenuButton =
+        document.getElementById("mobileMenuButton");
 
-        init() {
-            this.cache();
-            this.bindNavigation();
-            this.renderContinents();
-            this.renderCountries();
-            this.renderFeatured();
-            this.renderKnowledge();
-            this.initCalculator();
-            this.initConverter();
-            this.initTooltip();
-            this.hideLoader();
-            this.handleInitialPage();
-        },
+    const mobileMenu =
+        document.getElementById("mobileMenu");
 
-        cache() {
-            this.pages = document.querySelectorAll(".page");
-            this.nav = document.getElementById("mainNav");
-            this.mobileMenuBtn = document.getElementById("mobileMenuBtn");
-        },
+    if (mobileMenuButton && mobileMenu) {
 
-        hideLoader() {
-            setTimeout(() => {
-                document.getElementById("pageLoader")?.classList.add("hidden");
-            }, 700);
-        },
+        mobileMenuButton.addEventListener("click", () => {
+            mobileMenu.classList.toggle("active");
+        });
 
-        handleInitialPage() {
-            const hash = window.location.hash.replace("#", "");
+        mobileMenu.querySelectorAll("a").forEach(link => {
 
-            if (hash === "countries") {
-                this.showPage("countries");
-            } else if (hash === "knowledge") {
-                this.showPage("knowledge");
-            } else if (hash === "calculator") {
-                this.showPage("calculator");
-            } else if (hash === "converter") {
-                this.showPage("converter");
-            } else {
-                this.showPage("home");
+            link.addEventListener("click", () => {
+                mobileMenu.classList.remove("active");
+            });
+
+        });
+
+    }
+
+
+    /*
+    ==========================================
+    АНИМАЦИЯ ПОЯВЛЕНИЯ СЕКЦИЙ
+    ==========================================
+    */
+
+    const revealElements =
+        document.querySelectorAll(".reveal");
+
+    const revealObserver =
+        new IntersectionObserver(
+            entries => {
+
+                entries.forEach(entry => {
+
+                    if (entry.isIntersecting) {
+
+                        entry.target.classList.add("visible");
+
+                        revealObserver.unobserve(
+                            entry.target
+                        );
+
+                    }
+
+                });
+
+            },
+            {
+                threshold: 0.12
             }
-        },
-
-        bindNavigation() {
-
-            document.addEventListener("click", (event) => {
-
-                const button = event.target.closest("[data-page]");
-
-                if (!button) return;
-
-                const page = button.dataset.page;
-
-                if (page) {
-                    this.showPage(page);
-                }
-
-            });
-
-            this.mobileMenuBtn?.addEventListener("click", () => {
-                this.nav.classList.toggle("open");
-            });
-
-            document.getElementById("countryBack")?.addEventListener("click", () => {
-                this.showPage("countries");
-            });
-
-            document.getElementById("articleBack")?.addEventListener("click", () => {
-                this.showPage("knowledge");
-            });
-
-            window.addEventListener("hashchange", () => {
-                this.handleInitialPage();
-            });
-        },
-
-        showPage(page) {
-
-            if (page === "country-detail" || page === "article") {
-                // handled separately
-            }
-
-            const target = document.getElementById(`page-${page}`);
-
-            if (!target) return;
-
-            this.pages.forEach(p => {
-                p.classList.remove("active-page");
-            });
-
-            target.classList.add("active-page");
-
-            document.querySelectorAll(".nav-link").forEach(link => {
-                link.classList.toggle(
-                    "active",
-                    link.dataset.page === page
-                );
-            });
-
-            this.currentPage = page;
-
-            this.nav?.classList.remove("open");
-
-            window.scrollTo({
-                top: 0,
-                behavior: "smooth"
-            });
-
-            if (page !== "home") {
-                history.replaceState(null, "", `#${page}`);
-            } else {
-                history.replaceState(null, "", "#");
-            }
-
-            setTimeout(() => {
-                if (window.initRevealAnimations) {
-                    window.initRevealAnimations();
-                }
-            }, 80);
-        },
+        );
 
 
-        /* COUNTRIES */
-
-        renderContinents() {
-
-            const container = document.getElementById("continentTabs");
-
-            if (!container) return;
-
-            container.innerHTML = `
-                <button
-                    class="continent-tab active"
-                    data-continent="all"
-                >
-                    Все
-                </button>
-            `;
-
-            continents.forEach(continent => {
-
-                const button = document.createElement("button");
-
-                button.className = "continent-tab";
-                button.dataset.continent = continent;
-                button.textContent = continent;
-
-                container.appendChild(button);
-
-            });
-
-            container.addEventListener("click", event => {
-
-                const button = event.target.closest(".continent-tab");
-
-                if (!button) return;
-
-                this.continent = button.dataset.continent;
-
-                container.querySelectorAll(".continent-tab")
-                    .forEach(item => item.classList.remove("active"));
-
-                button.classList.add("active");
-
-                this.renderCountries();
-
-            });
-
-            const search = document.getElementById("countrySearch");
-
-            search?.addEventListener("input", event => {
-
-                this.search = event.target.value
-                    .trim()
-                    .toLowerCase();
-
-                this.renderCountries();
-
-            });
-        },
+    revealElements.forEach(element => {
+        revealObserver.observe(element);
+    });
 
 
-        getFilteredCountries() {
+    /*
+    ==========================================
+    СТРАНЫ
+    ==========================================
+    */
 
-            return countries.filter(country => {
+    const countriesGrid =
+        document.getElementById("countriesGrid");
 
-                const matchesContinent =
-                    this.continent === "all" ||
-                    country.continent === this.continent;
+    const countrySearch =
+        document.getElementById("countrySearch");
 
-                const searchText = `
-                    ${country.name}
-                    ${country.region}
-                    ${country.continent}
-                `.toLowerCase();
+    const countryRegion =
+        document.getElementById("countryRegion");
+
+    const countryEmpty =
+        document.getElementById("countryEmpty");
+
+
+    function renderCountries() {
+
+        if (!countriesGrid) {
+            return;
+        }
+
+        const search =
+            (countrySearch?.value || "")
+                .trim()
+                .toLowerCase();
+
+        const region =
+            countryRegion?.value || "all";
+
+
+        const filtered =
+            countries.filter(country => {
 
                 const matchesSearch =
-                    !this.search ||
-                    searchText.includes(this.search);
+                    country.name
+                        .toLowerCase()
+                        .includes(search) ||
 
-                return matchesContinent && matchesSearch;
+                    country.description
+                        .toLowerCase()
+                        .includes(search) ||
+
+                    country.tags.some(tag =>
+                        tag.toLowerCase().includes(search)
+                    );
+
+
+                const matchesRegion =
+                    region === "all" ||
+                    country.region === region;
+
+
+                return matchesSearch && matchesRegion;
+
             });
 
-        },
+
+        countriesGrid.innerHTML = "";
 
 
-        renderCountries() {
+        filtered.forEach((country, index) => {
 
-            const container = document.getElementById("countriesGrid");
+            const card =
+                document.createElement("article");
 
-            if (!container) return;
+            card.className =
+                "country-card country-enter";
 
-            const filtered = this.getFilteredCountries();
-
-            if (!filtered.length) {
-
-                container.innerHTML = `
-                    <div class="empty-state">
-                        <h3>Ничего не найдено</h3>
-                        <p>Попробуй изменить запрос или регион.</p>
-                    </div>
-                `;
-
-                return;
-            }
-
-            container.innerHTML = filtered.map(country =>
-                this.countryCardHTML(country)
-            ).join("");
-
-            container.querySelectorAll(".country-card")
-                .forEach(card => {
-
-                    card.addEventListener("click", () => {
-
-                        const country = countries.find(
-                            item => item.id === card.dataset.country
-                        );
-
-                        if (country) {
-                            this.openCountry(country);
-                        }
-
-                    });
-
-                });
-
-            if (window.initRevealAnimations) {
-                window.initRevealAnimations();
-            }
-        },
+            card.style.animationDelay =
+                `${index * 45}ms`;
 
 
-        countryCardHTML(country) {
+            card.innerHTML = `
 
-            return `
-                <article
-                    class="country-card reveal"
-                    data-country="${country.id}"
-                >
+                <div class="country-top">
 
-                    <div class="country-flag">
+                    <span class="country-flag">
                         ${country.flag}
-                    </div>
+                    </span>
 
-                    <div class="country-region">
-                        ${country.region}
-                    </div>
+                    <span class="country-region">
+                        ${country.regionName}
+                    </span>
 
-                    <h3>${country.name}</h3>
+                </div>
 
-                    <p>${country.description}</p>
+                <h3>
+                    ${country.name}
+                </h3>
 
-                    <div class="country-arrow">↗</div>
+                <p>
+                    ${country.description}
+                </p>
 
-                </article>
+                <div class="country-tags">
+
+                    ${country.tags
+                        .map(tag =>
+                            `<span class="country-tag">
+                                ${tag}
+                             </span>`
+                        )
+                        .join("")
+                    }
+
+                </div>
             `;
-        },
 
 
-        renderFeatured() {
+            countriesGrid.appendChild(card);
 
-            const container =
-                document.getElementById("featuredCountries");
-
-            if (!container) return;
-
-            const featured = countries.slice(0, 6);
-
-            container.innerHTML = featured
-                .map(country => this.countryCardHTML(country))
-                .join("");
-
-            container.querySelectorAll(".country-card")
-                .forEach(card => {
-
-                    card.addEventListener("click", () => {
-
-                        const country = countries.find(
-                            item => item.id === card.dataset.country
-                        );
-
-                        this.openCountry(country);
-
-                    });
-
-                });
-        },
+        });
 
 
-        openCountry(country) {
+        if (countryEmpty) {
 
-            if (!country) return;
-
-            this.currentCountry = country;
-
-            const page = document.getElementById("page-country-detail");
-
-            this.pages.forEach(p => {
-                p.classList.remove("active-page");
-            });
-
-            page.classList.add("active-page");
-
-            document.querySelectorAll(".nav-link")
-                .forEach(link => link.classList.remove("active"));
-
-            history.replaceState(
-                null,
-                "",
-                `#country/${country.id}`
+            countryEmpty.classList.toggle(
+                "hidden",
+                filtered.length !== 0
             );
 
-            const container =
-                document.getElementById("countryDetail");
+        }
 
-            container.innerHTML = `
+    }
 
-                <div class="country-detail-hero">
 
-                    <div class="country-detail-main reveal">
+    if (countrySearch) {
+        countrySearch.addEventListener(
+            "input",
+            renderCountries
+        );
+    }
 
-                        <div class="country-detail-flag">
-                            ${country.flag}
-                        </div>
 
-                        <div class="country-region">
-                            ${country.continent} · ${country.region}
-                        </div>
+    if (countryRegion) {
+        countryRegion.addEventListener(
+            "change",
+            renderCountries
+        );
+    }
 
-                        <h1>${country.name}</h1>
 
-                        <p>
-                            ${country.description}
-                        </p>
+    renderCountries();
 
-                    </div>
 
-                    <aside class="country-detail-side reveal">
+    /*
+    ==========================================
+    КАЛЬКУЛЯТОР
+    ==========================================
+    */
 
-                        <h3>Коротко</h3>
+    const calculateButton =
+        document.getElementById("calculateButton");
 
-                        <div class="info-row">
-                            <span>Валюта</span>
-                            <strong>
-                                ${country.currency}
-                            </strong>
-                        </div>
 
-                        <div class="info-row">
-                            <span>Язык</span>
-                            <strong>
-                                ${country.language}
-                            </strong>
-                        </div>
+    function value(id) {
 
-                        <div class="info-row">
-                            <span>Виза</span>
-                            <strong>
-                                ${country.visa}
-                            </strong>
-                        </div>
+        const element =
+            document.getElementById(id);
 
-                        <div class="info-row">
-                            <span>Ориентир / месяц</span>
-                            <strong>
-                                ~$${country.monthly}
-                            </strong>
-                        </div>
+        if (!element) {
+            return 0;
+        }
 
-                    </aside>
+        return Math.max(
+            0,
+            Number(element.value) || 0
+        );
 
-                </div>
+    }
 
-                <div class="country-topics">
 
-                    ${this.topicHTML(country, "documents", "Документы", "Подготовка документов")}
+    function formatUSD(number) {
 
-                    ${this.topicHTML(country, "visa", "Визы", "Условия въезда и пребывания")}
+        return "$" +
+            Math.round(number)
+                .toLocaleString("en-US");
 
-                    ${this.topicHTML(country, "residence", "ВНЖ", "Долгосрочное проживание")}
+    }
 
-                    ${this.topicHTML(country, "work", "Работа", "Трудоустройство")}
 
-                    ${this.topicHTML(country, "study", "Учёба", "Образование")}
+    function calculateBudget() {
 
-                    ${this.topicHTML(country, "housing", "Жильё", "Аренда и районы")}
+        const total =
+            value("ticket") +
+            value("housing") +
+            value("deposit") +
+            value("documents") +
+            value("insurance") +
+            value("food") +
+            value("transport") +
+            value("reserve");
 
-                    ${this.topicHTML(country, "medicine", "Медицина", "Клиники и страхование")}
 
-                    ${this.topicHTML(country, "transport", "Транспорт", "Перемещение по стране")}
+        const minimum =
+            Math.round(total * 0.75);
 
-                    ${this.topicHTML(country, "internet", "Интернет", "Связь и SIM-карты")}
+        const realistic =
+            Math.round(total);
 
-                </div>
-            `;
+        const comfortable =
+            Math.round(total * 1.35);
 
-            container.querySelectorAll(".topic-card")
-                .forEach(card => {
 
-                    card.addEventListener("click", () => {
+        const minimumResult =
+            document.getElementById(
+                "minimumResult"
+            );
 
-                        const key = card.dataset.topic;
+        const realisticResult =
+            document.getElementById(
+                "realisticResult"
+            );
 
-                        this.showTopicInfo(
-                            country,
-                            key
-                        );
+        const comfortableResult =
+            document.getElementById(
+                "comfortableResult"
+            );
 
-                    });
 
-                });
+        if (minimumResult) {
 
-            window.scrollTo({
-                top: 0,
-                behavior: "smooth"
-            });
+            minimumResult.textContent =
+                formatUSD(minimum);
 
-            setTimeout(() => {
-                window.initRevealAnimations?.();
-            }, 50);
+            minimumResult.classList.remove(
+                "result-pop"
+            );
+
+            void minimumResult.offsetWidth;
+
+            minimumResult.classList.add(
+                "result-pop"
+            );
+
+        }
+
+
+        if (realisticResult) {
+
+            realisticResult.textContent =
+                formatUSD(realistic);
+
+            realisticResult.classList.remove(
+                "result-pop"
+            );
+
+            void realisticResult.offsetWidth;
+
+            realisticResult.classList.add(
+                "result-pop"
+            );
+
+        }
+
+
+        if (comfortableResult) {
+
+            comfortableResult.textContent =
+                formatUSD(comfortable);
+
+            comfortableResult.classList.remove(
+                "result-pop"
+            );
+
+            void comfortableResult.offsetWidth;
+
+            comfortableResult.classList.add(
+                "result-pop"
+            );
+
+        }
+
+    }
+
+
+    if (calculateButton) {
+
+        calculateButton.addEventListener(
+            "click",
+            calculateBudget
+        );
+
+    }
+
+
+    document
+        .querySelectorAll(
+            "#calculator input"
+        )
+        .forEach(input => {
+
+            input.addEventListener(
+                "input",
+                calculateBudget
+            );
+
+        });
+
+
+    calculateBudget();
+
+
+    /*
+    ==========================================
+    ТЕСТ
+    ==========================================
+    */
+
+    const testQuestions = [
+
+        {
+            question:
+                "Если бы финансовый вопрос был решён, ты бы хотел переехать?",
+
+            answers: [
+                {
+                    text: "Да, я давно об этом думаю.",
+                    score: 3
+                },
+                {
+                    text: "Скорее да, но есть сомнения.",
+                    score: 2
+                },
+                {
+                    text: "Не уверен.",
+                    score: 1
+                },
+                {
+                    text: "Нет.",
+                    score: 0
+                }
+            ]
         },
 
+        {
+            question:
+                "Есть ли у тебя причина, из-за которой ты рассматриваешь переезд?",
 
-        topicHTML(country, key, title, description) {
-
-            return `
-                <article
-                    class="topic-card reveal"
-                    data-topic="${key}"
-                >
-
-                    <span>${this.topicIcon(key)}</span>
-
-                    <strong>${title}</strong>
-
-                    <p>${description}</p>
-
-                </article>
-            `;
+            answers: [
+                {
+                    text: "Да, причина очень серьёзная.",
+                    score: 3
+                },
+                {
+                    text: "Есть несколько причин.",
+                    score: 2
+                },
+                {
+                    text: "Просто хочется попробовать.",
+                    score: 1
+                },
+                {
+                    text: "Особой причины нет.",
+                    score: 0
+                }
+            ]
         },
 
+        {
+            question:
+                "Готов ли ты некоторое время жить в новой стране без привычного окружения?",
 
-        topicIcon(key) {
-
-            const icons = {
-                documents: "▤",
-                visa: "◎",
-                residence: "⌂",
-                work: "▣",
-                study: "◇",
-                housing: "⌂",
-                medicine: "＋",
-                transport: "→",
-                internet: "⌁"
-            };
-
-            return icons[key] || "•";
+            answers: [
+                {
+                    text: "Да, я готов к этому.",
+                    score: 3
+                },
+                {
+                    text: "Думаю, справлюсь.",
+                    score: 2
+                },
+                {
+                    text: "Мне будет сложно.",
+                    score: 1
+                },
+                {
+                    text: "Нет.",
+                    score: 0
+                }
+            ]
         },
 
+        {
+            question:
+                "Есть ли у тебя источник дохода или план его найти?",
 
-        showTopicInfo(country, key) {
-
-            const titleMap = {
-                documents: "Документы",
-                visa: "Визы",
-                residence: "ВНЖ",
-                work: "Работа",
-                study: "Учёба",
-                housing: "Жильё",
-                medicine: "Медицина",
-                transport: "Транспорт",
-                internet: "Интернет"
-            };
-
-            const text =
-                country.topics[key] ||
-                "Информация пока готовится.";
-
-            const article = document.getElementById("articleContent");
-
-            this.pages.forEach(p => {
-                p.classList.remove("active-page");
-            });
-
-            document.getElementById("page-article")
-                .classList.add("active-page");
-
-            article.innerHTML = `
-
-                <header class="article-header">
-
-                    <span class="section-kicker">
-                        ${country.flag} ${country.name}
-                    </span>
-
-                    <h1>${titleMap[key]}</h1>
-
-                    <p>
-                        Информация по направлению
-                        «${titleMap[key].toLowerCase()}»
-                        для ${country.name}.
-                    </p>
-
-                </header>
-
-                <div class="article-body">
-
-                    <p>
-                        ${text}
-                    </p>
-
-                    <h2>Что важно проверить</h2>
-
-                    <p>
-                        Требования могут меняться в зависимости
-                        от гражданства, цели пребывания,
-                        срока поездки и конкретной процедуры.
-                    </p>
-
-                    <p>
-                        Перед подачей документов всегда
-                        сверяй актуальные условия с официальными
-                        источниками соответствующей страны.
-                    </p>
-
-                </div>
-            `;
-
-            window.scrollTo({
-                top: 0,
-                behavior: "smooth"
-            });
+            answers: [
+                {
+                    text: "Да, доход уже есть.",
+                    score: 3
+                },
+                {
+                    text: "Есть план.",
+                    score: 2
+                },
+                {
+                    text: "Пока ищу варианты.",
+                    score: 1
+                },
+                {
+                    text: "Нет.",
+                    score: 0
+                }
+            ]
         },
 
+        {
+            question:
+                "Готов ли ты заниматься документами и бюрократией?",
 
-        /* KNOWLEDGE */
+            answers: [
+                {
+                    text: "Да, разберусь.",
+                    score: 3
+                },
+                {
+                    text: "Если надо — буду.",
+                    score: 2
+                },
+                {
+                    text: "Не люблю такое.",
+                    score: 1
+                },
+                {
+                    text: "Совсем не хочу.",
+                    score: 0
+                }
+            ]
+        },
 
-        renderKnowledge() {
+        {
+            question:
+                "Готов ли ты принять, что первые месяцы могут быть непростыми?",
 
-            const container =
-                document.getElementById("knowledgeGrid");
+            answers: [
+                {
+                    text: "Да. Я понимаю это.",
+                    score: 3
+                },
+                {
+                    text: "Скорее да.",
+                    score: 2
+                },
+                {
+                    text: "Не знаю.",
+                    score: 1
+                },
+                {
+                    text: "Нет, хочу чтобы всё сразу было идеально.",
+                    score: 0
+                }
+            ]
+        },
 
-            if (!container) return;
+        {
+            question:
+                "Если подходящая страна найдётся, готов ли ты начать подготовку?",
 
-            container.innerHTML =
-                knowledgeCategories.map(category => `
+            answers: [
+                {
+                    text: "Да. Хочу начать.",
+                    score: 3
+                },
+                {
+                    text: "Скорее да.",
+                    score: 2
+                },
+                {
+                    text: "Пока просто изучаю.",
+                    score: 1
+                },
+                {
+                    text: "Нет.",
+                    score: 0
+                }
+            ]
+        }
 
-                    <article
-                        class="knowledge-card reveal"
-                        data-knowledge="${category.id}"
-                    >
+    ];
 
-                        <div class="knowledge-icon">
-                            ${category.icon}
-                        </div>
 
-                        <h3>${category.title}</h3>
+    const testQuestion =
+        document.getElementById(
+            "testQuestion"
+        );
 
-                        <p>${category.description}</p>
+    const testAnswers =
+        document.getElementById(
+            "testAnswers"
+        );
 
-                    </article>
+    const testNextButton =
+        document.getElementById(
+            "testNextButton"
+        );
 
-                `).join("");
+    const testProgress =
+        document.getElementById(
+            "testProgress"
+        );
 
-            container.querySelectorAll(".knowledge-card")
-                .forEach(card => {
+    const testProgressText =
+        document.getElementById(
+            "testProgressText"
+        );
 
-                    card.addEventListener("click", () => {
+    const testQuestionNumber =
+        document.getElementById(
+            "testQuestionNumber"
+        );
 
-                        const category =
-                            knowledgeCategories.find(
+    const testResult =
+        document.getElementById(
+            "testResult"
+        );
+
+    const testResultEmoji =
+        document.getElementById(
+            "testResultEmoji"
+        );
+
+    const testResultTitle =
+        document.getElementById(
+            "testResultTitle"
+        );
+
+    const testResultText =
+        document.getElementById(
+            "testResultText"
+        );
+
+    const restartTest =
+        document.getElementById(
+            "restartTest"
+        );
+
+
+    let currentQuestion = 0;
+    let selectedScore = null;
+    let totalScore = 0;
+
+
+    function renderQuestion() {
+
+        if (
+            !testQuestion ||
+            !testAnswers
+        ) {
+            return;
+        }
+
+
+        const question =
+            testQuestions[currentQuestion];
+
+
+        selectedScore = null;
+
+        if (testNextButton) {
+            testNextButton.disabled = true;
+        }
+
+
+        testQuestion.innerHTML =
+            question.question;
+
+
+        testAnswers.innerHTML = "";
+
+
+        question.answers.forEach(
+            (answer, index) => {
+
+                const button =
+                    document.createElement("button");
+
+                button.className =
+                    "answer-button";
+
+                button.type =
+                    "button";
+
+                button.textContent =
+                    answer.text;
+
+
+                button.addEventListener(
+                    "click",
+                    () => {
+
+                        testAnswers
+                            .querySelectorAll(
+                                ".answer-button"
+                            )
+                            .forEach(
                                 item =>
-                                    item.id === card.dataset.knowledge
+                                    item.classList.remove(
+                                        "selected"
+                                    )
                             );
 
-                        if (category) {
-                            this.openArticle(category);
+
+                        button.classList.add(
+                            "selected"
+                        );
+
+
+                        selectedScore =
+                            answer.score;
+
+
+                        if (testNextButton) {
+                            testNextButton.disabled =
+                                false;
                         }
 
-                    });
-
-                });
-        },
-
-
-        openArticle(category) {
-
-            this.currentArticle = category;
-
-            const article =
-                document.getElementById("articleContent");
-
-            this.pages.forEach(p => {
-                p.classList.remove("active-page");
-            });
-
-            document.getElementById("page-article")
-                .classList.add("active-page");
-
-            article.innerHTML = `
-
-                <header class="article-header">
-
-                    <span class="section-kicker">
-                        БАЗА ЗНАНИЙ
-                    </span>
-
-                    <h1>${category.article.title}</h1>
-
-                    <p>
-                        ${category.article.intro}
-                    </p>
-
-                </header>
-
-                <div class="article-body">
-
-                    ${category.article.sections.map(section => `
-
-                        <h2>${section.title}</h2>
-
-                        <p>${section.text}</p>
-
-                    `).join("")}
-
-                </div>
-            `;
-
-            window.scrollTo({
-                top: 0,
-                behavior: "smooth"
-            });
-        },
-
-
-        /* CALCULATOR */
-
-        initCalculator() {
-
-            const select =
-                document.getElementById("calcCountry");
-
-            if (!select) return;
-
-            select.innerHTML += countries.map(country => `
-                <option value="${country.id}">
-                    ${country.flag} ${country.name}
-                </option>
-            `).join("");
-
-            document
-                .getElementById("calculateBtn")
-                ?.addEventListener("click", () => {
-                    this.calculateMove();
-                });
-        },
-
-
-        calculateMove() {
-
-            const countryId =
-                document.getElementById("calcCountry").value;
-
-            const people =
-                Number(document.getElementById("calcPeople").value) || 1;
-
-            const months =
-                Number(document.getElementById("calcMonths").value) || 3;
-
-            const country =
-                countries.find(item => item.id === countryId);
-
-            if (!country) {
-
-                this.renderCalculatorMessage(
-                    "Сначала выбери страну."
+                    }
                 );
 
-                return;
+
+                testAnswers.appendChild(
+                    button
+                );
+
             }
+        );
 
-            const visa =
-                document.getElementById("calcVisa").checked
-                    ? 250
-                    : 0;
-
-            const flight =
-                document.getElementById("calcFlight").checked
-                    ? 450 * people
-                    : 0;
-
-            const housing =
-                document.getElementById("calcHousing").checked
-                    ? country.monthly
-                    : 0;
-
-            const deposit =
-                document.getElementById("calcDeposit").checked
-                    ? country.monthly
-                    : 0;
-
-            const living =
-                country.monthly *
-                months *
-                people;
-
-            const total =
-                visa +
-                flight +
-                housing +
-                deposit +
-                living;
-
-            const result =
-                document.getElementById("calculatorResult");
 
-            result.innerHTML = `
-
-                <div class="result-top">
-
-                    <small>
-                        ОРИЕНТИРОВОЧНЫЙ СТАРТОВЫЙ БЮДЖЕТ
-                    </small>
-
-                    <div class="result-price">
-                        $${Math.round(total).toLocaleString("ru-RU")}
-                        <span class="result-currency">USD</span>
-                    </div>
-
-                    <p style="
-                        color:var(--text-soft);
-                        font-size:11px;
-                        margin-top:8px;
-                    ">
-                        ${country.flag} ${country.name}
-                        · ${people} чел.
-                        · ${months} мес.
-                    </p>
-
-                </div>
-
-                <div class="result-breakdown">
-
-                    <div class="breakdown-row">
-                        <span>Проживание</span>
-                        <strong>
-                            $${Math.round(living).toLocaleString("ru-RU")}
-                        </strong>
-                    </div>
-
-                    <div class="breakdown-row">
-                        <span>Документы / виза</span>
-                        <strong>
-                            $${visa.toLocaleString("ru-RU")}
-                        </strong>
-                    </div>
-
-                    <div class="breakdown-row">
-                        <span>Перелёт</span>
-                        <strong>
-                            $${flight.toLocaleString("ru-RU")}
-                        </strong>
-                    </div>
-
-                    <div class="breakdown-row">
-                        <span>Первое жильё</span>
-                        <strong>
-                            $${housing.toLocaleString("ru-RU")}
-                        </strong>
-                    </div>
+        const questionNumber =
+            currentQuestion + 1;
 
-                    <div class="breakdown-row">
-                        <span>Депозит</span>
-                        <strong>
-                            $${deposit.toLocaleString("ru-RU")}
-                        </strong>
-                    </div>
 
-                </div>
+        if (testProgressText) {
 
-                <div class="converter-note" style="margin-top:20px;">
-                    ⓘ Расчёт ориентировочный и нужен для
-                    первичной оценки бюджета.
-                </div>
-            `;
-        },
+            testProgressText.textContent =
+                `Вопрос ${questionNumber} из ${testQuestions.length}`;
 
+        }
 
-        renderCalculatorMessage(message) {
 
-            const result =
-                document.getElementById("calculatorResult");
+        if (testQuestionNumber) {
 
-            result.innerHTML = `
+            testQuestionNumber.textContent =
+                String(questionNumber)
+                    .padStart(2, "0");
 
-                <div class="result-empty">
+        }
 
-                    <span class="result-icon">ⓘ</span>
 
-                    <h3>${message}</h3>
+        if (testProgress) {
 
-                    <p>
-                        Выбери параметры слева,
-                        чтобы получить расчёт.
-                    </p>
+            testProgress.style.width =
+                `${(
+                    questionNumber /
+                    testQuestions.length
+                ) * 100}%`;
 
-                </div>
-            `;
-        },
+        }
 
+    }
 
-        /* CONVERTER */
 
-        initConverter() {
-
-            const currencies = [
-                ["RUB", "🇷🇺 RUB"],
-                ["USD", "🇺🇸 USD"],
-                ["EUR", "🇪🇺 EUR"],
-                ["GBP", "🇬🇧 GBP"],
-                ["KZT", "🇰🇿 KZT"],
-                ["GEL", "🇬🇪 GEL"],
-                ["TRY", "🇹🇷 TRY"],
-                ["THB", "🇹🇭 THB"],
-                ["VND", "🇻🇳 VND"],
-                ["IDR", "🇮🇩 IDR"],
-                ["CAD", "🇨🇦 CAD"]
-            ];
-
-            const from =
-                document.getElementById("currencyFrom");
-
-            const to =
-                document.getElementById("currencyTo");
-
-            if (!from || !to) return;
+    function showTestResult() {
 
-            const options = currencies.map(currency => `
-                <option value="${currency[0]}">
-                    ${currency[1]}
-                </option>
-            `).join("");
-
-            from.innerHTML = options;
-            to.innerHTML = options;
-
-            from.value = "USD";
-            to.value = "EUR";
-
-            const update = () => this.convertCurrency();
-
-            document
-                .getElementById("currencyAmount")
-                ?.addEventListener("input", update);
-
-            from.addEventListener("change", update);
-            to.addEventListener("change", update);
-
-            document
-                .getElementById("swapCurrencies")
-                ?.addEventListener("click", () => {
+        const maxScore =
+            testQuestions.length * 3;
 
-                    const temp = from.value;
 
-                    from.value = to.value;
-                    to.value = temp;
+        const percentage =
+            totalScore / maxScore;
 
-                    update();
-                });
 
-            update();
-        },
+        let emoji;
+        let title;
+        let text;
 
 
-        convertCurrency() {
+        if (percentage >= 0.75) {
 
-            const rates = {
+            emoji = "🧭";
 
-                USD: {
-                    USD: 1,
-                    EUR: .92,
-                    GBP: .79,
-                    RUB: 80,
-                    KZT: 480,
-                    GEL: 2.7,
-                    TRY: 40,
-                    THB: 32,
-                    VND: 25000,
-                    IDR: 16000,
-                    CAD: 1.37
-                },
+            title =
+                "Похоже, ты действительно готов рассматривать переезд.";
 
-                EUR: {
-                    USD: 1.09,
-                    EUR: 1,
-                    GBP: .86,
-                    RUB: 87,
-                    KZT: 520,
-                    GEL: 2.95,
-                    TRY: 43,
-                    THB: 35,
-                    VND: 27200,
-                    IDR: 17400,
-                    CAD: 1.49
-                },
+            text =
+                "У тебя достаточно сильная мотивация и готовность заниматься практической частью. Следующий шаг — подобрать страны, посчитать бюджет и составить конкретный план.";
 
-                RUB: {
-                    RUB: 1,
-                    USD: .0125,
-                    EUR: .0115,
-                    GBP: .0099,
-                    KZT: 6,
-                    GEL: .034,
-                    TRY: .5,
-                    THB: .4,
-                    VND: 310,
-                    IDR: 200,
-                    CAD: .017
-                }
+        } else if (percentage >= 0.45) {
 
-            };
+            emoji = "🌿";
 
-            const amount =
-                Number(
-                    document.getElementById("currencyAmount").value
-                ) || 0;
+            title =
+                "Тебе стоит рассмотреть переезд спокойнее.";
 
-            const from =
-                document.getElementById("currencyFrom").value;
+            text =
+                "Похоже, интерес есть, но некоторые вопросы пока требуют ответа. Не обязательно принимать решение сейчас. Сначала изучи направления, деньги, документы и варианты дохода.";
 
-            const to =
-                document.getElementById("currencyTo").value;
+        } else {
 
-            let rate;
+            emoji = "🫧";
 
-            if (rates[from]?.[to]) {
-                rate = rates[from][to];
-            } else if (rates[to]?.[from]) {
-                rate = 1 / rates[to][from];
-            } else {
-                rate = 1;
-            }
+            title =
+                "Сейчас тебе, возможно, не стоит торопиться.";
 
-            const result = amount * rate;
+            text =
+                "Результат не означает «не уезжай». Возможно, тебе сначала нужно решить несколько вопросов дома: деньги, работа, мотивация или понимание того, куда именно ты хочешь двигаться.";
 
-            document.getElementById("currencyResult").value =
-                result.toLocaleString("ru-RU", {
-                    maximumFractionDigits: 2
-                });
+        }
 
-            document.getElementById("exchangeInfo").textContent =
-                `1 ${from} ≈ ${rate.toLocaleString("ru-RU", {
-                    maximumFractionDigits: 4
-                })} ${to}`;
-        },
 
+        if (testResultEmoji) {
+            testResultEmoji.textContent = emoji;
+        }
 
-        /* TOOLTIPS */
 
-        initTooltip() {
+        if (testResultTitle) {
+            testResultTitle.textContent = title;
+        }
 
-            const tooltip =
-                document.getElementById("tooltip");
 
-            document.addEventListener("click", event => {
+        if (testResultText) {
+            testResultText.textContent = text;
+        }
 
-                const info =
-                    event.target.closest("[data-info]");
 
-                if (!info) {
+        document
+            .querySelector(".test-card")
+            ?.classList.add("hidden");
 
-                    tooltip.classList.remove("visible");
 
+        testResult?.classList.remove(
+            "hidden"
+        );
+
+
+        testResult?.scrollIntoView({
+            behavior: "smooth",
+            block: "center"
+        });
+
+    }
+
+
+    if (testNextButton) {
+
+        testNextButton.addEventListener(
+            "click",
+            () => {
+
+                if (selectedScore === null) {
                     return;
                 }
 
-                tooltip.textContent =
-                    info.dataset.info;
 
-                tooltip.classList.add("visible");
+                totalScore += selectedScore;
 
-                const rect =
-                    info.getBoundingClientRect();
 
-                tooltip.style.left =
-                    `${Math.min(
-                        window.innerWidth - 300,
-                        Math.max(10, rect.left)
-                    )}px`;
+                if (
+                    currentQuestion <
+                    testQuestions.length - 1
+                ) {
 
-                tooltip.style.top =
-                    `${rect.bottom + 10}px`;
-            });
+                    currentQuestion++;
+
+                    renderQuestion();
+
+                } else {
+
+                    showTestResult();
+
+                }
+
+            }
+        );
+
+    }
+
+
+    if (restartTest) {
+
+        restartTest.addEventListener(
+            "click",
+            () => {
+
+                currentQuestion = 0;
+                totalScore = 0;
+                selectedScore = null;
+
+
+                testResult?.classList.add(
+                    "hidden"
+                );
+
+
+                document
+                    .querySelector(".test-card")
+                    ?.classList.remove("hidden");
+
+
+                renderQuestion();
+
+            }
+        );
+
+    }
+
+
+    renderQuestion();
+
+
+    /*
+    ==========================================
+    БАЗА ЗНАНИЙ
+    ==========================================
+    */
+
+    const knowledgeData = {
+
+        documents: {
+
+            icon: "📄",
+
+            title: "Документы",
+
+            content: `
+                <p>
+                    Подготовка документов — одна из первых
+                    задач перед международным переездом.
+                </p>
+
+                <ul>
+                    <li>Проверь срок действия паспорта.</li>
+                    <li>Сделай цифровые копии важных документов.</li>
+                    <li>Проверь требования конкретной страны.</li>
+                    <li>Уточни необходимость переводов.</li>
+                    <li>Проверь требования к апостилю или легализации.</li>
+                    <li>Отдельно проверь визовые документы.</li>
+                </ul>
+            `
+
+        },
+
+
+        work: {
+
+            icon: "💼",
+
+            title: "Работа",
+
+            content: `
+                <p>
+                    До переезда желательно понимать,
+                    на что ты будешь жить после приезда.
+                </p>
+
+                <ul>
+                    <li>Удалённая работа.</li>
+                    <li>Местный работодатель.</li>
+                    <li>Фриланс.</li>
+                    <li>Собственный проект или бизнес.</li>
+                    <li>Финансовый резерв на первые месяцы.</li>
+                </ul>
+            `
+
+        },
+
+
+        study: {
+
+            icon: "🎓",
+
+            title: "Учёба",
+
+            content: `
+                <p>
+                    Учёба может быть отдельным основанием
+                    для переезда и способом адаптации.
+                </p>
+
+                <ul>
+                    <li>Университеты.</li>
+                    <li>Языковые курсы.</li>
+                    <li>Профессиональные программы.</li>
+                    <li>Стипендии.</li>
+                    <li>Подтверждение образования.</li>
+                </ul>
+            `
+
+        },
+
+
+        housing: {
+
+            icon: "🏠",
+
+            title: "Жильё",
+
+            content: `
+                <p>
+                    Первое жильё лучше рассматривать отдельно
+                    от долгосрочной аренды.
+                </p>
+
+                <ul>
+                    <li>Заранее изучи районы.</li>
+                    <li>Посчитай депозит.</li>
+                    <li>Проверь условия договора.</li>
+                    <li>Уточни коммунальные платежи.</li>
+                    <li>Не отправляй деньги незнакомым людям без проверки.</li>
+                </ul>
+            `
+
+        },
+
+
+        things: {
+
+            icon: "🎒",
+
+            title: "Что взять",
+
+            content: `
+                <p>
+                    Главное правило — не перевозить половину дома.
+                </p>
+
+                <ul>
+                    <li>Паспорт и документы.</li>
+                    <li>Телефон и зарядки.</li>
+                    <li>Ноутбук, если нужен для работы.</li>
+                    <li>Базовую аптечку.</li>
+                    <li>Одежду по климату.</li>
+                    <li>Резервные копии важных файлов.</li>
+                </ul>
+            `
+
+        },
+
+
+        rules: {
+
+            icon: "🚨",
+
+            title: "Можно и нельзя",
+
+            content: `
+                <p>
+                    Правила отличаются от страны к стране.
+                    Всегда проверяй актуальную информацию.
+                </p>
+
+                <ul>
+                    <li>Миграционные правила.</li>
+                    <li>Сроки пребывания.</li>
+                    <li>Правила регистрации.</li>
+                    <li>Налоговые обязанности.</li>
+                    <li>Правила работы иностранцев.</li>
+                    <li>Местные ограничения.</li>
+                </ul>
+            `
+
         }
 
     };
 
-    window.app = app;
 
-    app.init();
+    const modal =
+        document.getElementById(
+            "knowledgeModal"
+        );
+
+    const modalOverlay =
+        document.getElementById(
+            "modalOverlay"
+        );
+
+    const closeModal =
+        document.getElementById(
+            "closeModal"
+        );
+
+    const modalIcon =
+        document.getElementById(
+            "modalIcon"
+        );
+
+    const modalTitle =
+        document.getElementById(
+            "modalTitle"
+        );
+
+    const modalContent =
+        document.getElementById(
+            "modalContent"
+        );
+
+
+    function openKnowledge(topic) {
+
+        const data =
+            knowledgeData[topic];
+
+
+        if (!data) {
+            return;
+        }
+
+
+        if (modalIcon) {
+            modalIcon.textContent =
+                data.icon;
+        }
+
+
+        if (modalTitle) {
+            modalTitle.textContent =
+                data.title;
+        }
+
+
+        if (modalContent) {
+            modalContent.innerHTML =
+                data.content;
+        }
+
+
+        modal?.classList.remove(
+            "hidden"
+        );
+
+
+        document.body.style.overflow =
+            "hidden";
+
+    }
+
+
+    function closeKnowledge() {
+
+        modal?.classList.add(
+            "hidden"
+        );
+
+        document.body.style.overflow =
+            "";
+
+    }
+
+
+    document
+        .querySelectorAll(
+            ".knowledge-button"
+        )
+        .forEach(button => {
+
+            button.addEventListener(
+                "click",
+                () => {
+
+                    openKnowledge(
+                        button.dataset.topic
+                    );
+
+                }
+            );
+
+        });
+
+
+    closeModal?.addEventListener(
+        "click",
+        closeKnowledge
+    );
+
+
+    modalOverlay?.addEventListener(
+        "click",
+        closeKnowledge
+    );
+
+
+    document.addEventListener(
+        "keydown",
+        event => {
+
+            if (event.key === "Escape") {
+                closeKnowledge();
+            }
+
+        }
+    );
+
+
+    /*
+    ==========================================
+    КОНВЕРТЕР ВАЛЮТ
+    ==========================================
+    */
+
+    const converterAmount =
+        document.getElementById(
+            "converterAmount"
+        );
+
+    const converterFrom =
+        document.getElementById(
+            "converterFrom"
+        );
+
+    const converterTo =
+        document.getElementById(
+            "converterTo"
+        );
+
+    const convertButton =
+        document.getElementById(
+            "convertButton"
+        );
+
+    const converterResult =
+        document.getElementById(
+            "converterResult"
+        );
+
+
+    async function convertCurrency() {
+
+        const amount =
+            Number(
+                converterAmount?.value
+            ) || 0;
+
+
+        const from =
+            converterFrom?.value;
+
+        const to =
+            converterTo?.value;
+
+
+        if (!from || !to) {
+            return;
+        }
+
+
+        if (from === to) {
+
+            if (converterResult) {
+
+                converterResult.textContent =
+                    `${amount.toLocaleString(
+                        "en-US"
+                    )} ${from} = ${amount.toLocaleString(
+                        "en-US"
+                    )} ${to}`;
+
+            }
+
+            return;
+
+        }
+
+
+        if (converterResult) {
+
+            converterResult.textContent =
+                "Получаем актуальный курс…";
+
+        }
+
+
+        try {
+
+            const response =
+                await fetch(
+                    `https://api.frankfurter.app/latest?amount=${encodeURIComponent(
+                        amount
+                    )}&from=${encodeURIComponent(
+                        from
+                    )}&to=${encodeURIComponent(
+                        to
+                    )}`
+                );
+
+
+            if (!response.ok) {
+                throw new Error(
+                    "Currency API error"
+                );
+            }
+
+
+            const data =
+                await response.json();
+
+
+            const converted =
+                data.rates?.[to];
+
+
+            if (
+                typeof converted !==
+                "number"
+            ) {
+                throw new Error(
+                    "No rate"
+                );
+            }
+
+
+            if (converterResult) {
+
+                converterResult.textContent =
+                    `${amount.toLocaleString(
+                        "en-US"
+                    )} ${from} ≈ ${converted.toLocaleString(
+                        "en-US",
+                        {
+                            maximumFractionDigits: 2
+                        }
+                    )} ${to}`;
+
+            }
+
+
+        } catch (error) {
+
+            if (converterResult) {
+
+                converterResult.textContent =
+                    "Не удалось получить курс. Попробуй ещё раз.";
+
+            }
+
+        }
+
+    }
+
+
+    convertButton?.addEventListener(
+        "click",
+        convertCurrency
+    );
+
+
+    /*
+    ==========================================
+    ПЛАВНАЯ НАВИГАЦИЯ
+    ==========================================
+    */
+
+    document
+        .querySelectorAll(
+            'a[href^="#"]'
+        )
+        .forEach(link => {
+
+            link.addEventListener(
+                "click",
+                event => {
+
+                    const id =
+                        link.getAttribute(
+                            "href"
+                        );
+
+
+                    if (
+                        !id ||
+                        id === "#"
+                    ) {
+                        return;
+                    }
+
+
+                    const target =
+                        document.querySelector(
+                            id
+                        );
+
+
+                    if (!target) {
+                        return;
+                    }
+
+
+                    event.preventDefault();
+
+
+                    target.scrollIntoView({
+                        behavior: "smooth",
+                        block: "start"
+                    });
+
+                }
+            );
+
+        });
+
+
+    /*
+    ==========================================
+    ЗАПУСК
+    ==========================================
+    */
+
+    console.log(
+        "Точка выхода: система загружена."
+    );
 
 });
